@@ -1,0 +1,11 @@
+{
+  "port": "3000",
+  "mongoose": {
+    "uri": "mongodb://localhost:27017/bears"
+  },
+  "magicSecret": "tradingispracticallymagic",
+  "adminUser": {
+    "login": "Nick.Cerminara",
+    "password": "password"
+  }
+}
