@@ -18,7 +18,8 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     let user = req.decoded._doc;
     let account = new Account();
-    Object.assign(account, { userId: user._id });
+    Object.assign(account, { userId: user._id, blocked: 0 });
+    Object.assign(account, req.body);
 
     account.save((err) => {
         if (err) res.send(err);
@@ -57,8 +58,7 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    res.send("For now platform doesn't provide you with multiple accounts for one user.\n" +
-        "So you can't delete account for now.\n");
+    res.send("Investigating this part.");
 });
 
 module.exports = router;

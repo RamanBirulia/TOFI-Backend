@@ -44,9 +44,9 @@ router.get('/setup-users', (req, res) => {
 
     let createAccounts = (user, amountEUR, amountUSD, cb) => {
         let accountEUR = new Account();
-        Object.assign(accountEUR, { userId: user._id, currency: 'EUR', amount: amountEUR });
+        Object.assign(accountEUR, { userId: user._id, currency: 'EUR', amount: amountEUR, blocked: 0 });
         let accountUSD = new Account();
-        Object.assign(accountUSD, { userId: user._id, currency: 'USD', amount: amountUSD });
+        Object.assign(accountUSD, { userId: user._id, currency: 'USD', amount: amountUSD, blocked: 0 });
         accountEUR.save((err) => {
             if (err) res.send(err);
             accountUSD.save((err) => {
