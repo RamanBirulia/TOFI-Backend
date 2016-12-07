@@ -6,42 +6,47 @@ var router = express.Router();
 
 var User = require('../models/user');
 
+let defaultResult = {success: true, errors: {}};
+
 router.get('/', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
     if (user.admin){
         User.find({}, (err, users) => {
             if (err) res.send(err);
-            res.json(users);
+            Object.assign(result, {results: users});
+            res.json(result);
         });
-    }
-    else if (user){
-        User.findOne({ _id: user.id }, (err, user) => {
+    } else if (user){
+        User.findOne({_id: user.id}, (err, user) => {
             if (err) res.send(err);
             res.json(user);
         });
-    }
-    else {
-        res.json({ success: false, message: 'Permission denied.' });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
+        res.json(result);
     }
 });
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
     if (user.admin || user._id == req.params.id){
         User.findById(req.params.id, (err, user) => {
             if (err) res.send(err);
             res.json(user);
         });
-    }
-    else {
-        res.json({ success: false, message: 'Permission denied.' });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
+        res.json(result);
     }
 });
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
     if (user.admin || user._id == req.params.id){
         User.findById(req.params.id, (err, user) => {
@@ -55,23 +60,26 @@ router.put('/:id', (req, res) => {
         });
     }
     else {
-        res.json({ success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
+        res.json(result);
     }
 });
 
 router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
     if (user.admin){
         User.remove({
             _id: req.params.id
         }, (err) => {
             if (err) res.send(err);
-            res.json({ success: true, message: 'User successfully deleted.' });
+            res.json(result);
         });
     }
     else {
-        res.json({ success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
+        res.json(result);
     }
 });
 
