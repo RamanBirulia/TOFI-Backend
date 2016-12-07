@@ -13,15 +13,13 @@ const sellSide = 'SELL';
 const openedStatus = 'OPENED';
 const closedStatus = 'CLOSED';
 
+const defaultResult = {success: true, errors: {}};
+
 router.get('/', (req, res) => {
     let user = req.decoded._doc;
-    if (user.admin) {
-        Deal.find({}, (err, deals) => {
-            if (err) res.send(err);
-            res.json(deals);
-        });
-    }
-    else if (user) {
+    let result = defaultResult;
+
+    if (user) {
         Deal.find({
             $or: [
                 {buyerId: user._id},
@@ -29,11 +27,56 @@ router.get('/', (req, res) => {
             ]
         }, (err, deals) => {
             if (err) res.send(err);
-            res.json(deals);
+            Object.assign(result, {results: deals});
+            res.json(result);
         });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
     }
-    else {
-        res.json({success: false, message: 'Permission denied.'});
+});
+
+router.get('/opened', (req, res) => {
+    let user = req.decoded._doc;
+    let result = defaultResult;
+
+    if (user) {
+        Deal.find({
+            $or: [
+                {buyerId: user._id},
+                {sellerId: user._id}
+            ],
+            status: openedStatus
+        }, (err, deals) => {
+            if (err) res.send(err);
+            Object.assign(result, {results: deals});
+            res.json(result);
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
+    }
+});
+
+router.get('/closed', (req, res) => {
+    let user = req.decoded._doc;
+    let result = defaultResult;
+
+    if (user) {
+        Deal.find({
+            $or: [
+                {buyerId: user._id},
+                {sellerId: user._id}
+            ],
+            status: closedStatus
+        }, (err, deals) => {
+            if (err) res.send(err);
+            Object.assign(result, {results: deals});
+            res.json(result);
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
     }
 });
 
@@ -41,11 +84,11 @@ router.post('/', (req, res) => {
     let user = req.decoded._doc;
     let deal = new Deal();
 
-    let result = { success: true, errors: {} };
+    let result = defaultResult;
     let amount = 0;
 
     if (!user){
-        Object.assign(result, { success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
         res.json(result);
     }
 
@@ -72,7 +115,7 @@ router.post('/', (req, res) => {
             if (err) res.send(err);
             if (account.currency == 'USD'){
                 if (deal.units * deal.buyPrice > account.amount) {
-                    Object.assign(result, { success: false, message: 'Insufficient funds.' });
+                    Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
                     res.json(result);
                 } else {
                     account.amount -= deal.units * deal.buyPrice;
@@ -84,7 +127,7 @@ router.post('/', (req, res) => {
                 }
             } else {
                 if (deal.units > account.amount) {
-                    Object.assign(result, { success: false, message: 'Insufficient funds.' });
+                    Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
                     res.json(result);
                 } else {
                     account.amount -= deal.units;
@@ -105,12 +148,10 @@ router.post('/', (req, res) => {
                     side: sellSide,
                     status: openedStatus,
                     sellPrice: { $lte: deal.buyPrice },
-                }).sort({ sellPrice: 1 }).exec((err, deals) => {
-                    if (err) {
-                        res.send(err);
-                    } else {
+                }).sort({sellPrice: 1}).exec((err, deals) => {
+                    if (err) res.send(err);
+                    else {
                         let n = deals.length;
-
                         let checkDeal = (ind = 0) => {
                             if (ind == n) {
                                 cb();
@@ -154,7 +195,6 @@ router.post('/', (req, res) => {
                                 });
                             }
                         };
-
                         checkDeal();
                     }
                 });
@@ -165,11 +205,9 @@ router.post('/', (req, res) => {
                     status: openedStatus,
                     buyPrice: { $gte: deal.sellPrice }
                 }, (err, deals) => {
-                    if (err) {
-                        res.send(err);
-                    } else {
+                    if (err) res.send(err);
+                    else {
                         let n = deals.length;
-
                         let checkDeal = (ind = 0) => {
                             if (ind == n) {
                                 cb();
@@ -215,13 +253,12 @@ router.post('/', (req, res) => {
                                 });
                             }
                         };
-
                         checkDeal();
                     }
                 });
                 return;
             default:
-                Object.assign(result.errors, { side: 'Invalid side value.' });
+                Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
                 res.json(result);
                 return;
         }
@@ -229,9 +266,8 @@ router.post('/', (req, res) => {
 
     let saveDeal = () => {
         deal.save((err) => {
-            if (err) {
-                Object.assign(result, { success: false, errors: { save: err } });
-            } else {
+            if (err) res.send(err);
+            else {
                 if (deal.side == buySide) {
                     Account.findOne({
                         userId: user._id,
@@ -252,7 +288,7 @@ router.post('/', (req, res) => {
                                 }
                                 account.save((err) => {
                                     if (err) res.send(err);
-                                    Object.assign(result, { message: 'Deal successfully opened.', deal: deal });
+                                    Object.assign(result, {deal: deal});
                                     res.json(result);
                                 })
                             });
@@ -278,7 +314,7 @@ router.post('/', (req, res) => {
                                 }
                                 account.save((err) => {
                                     if (err) res.send(err);
-                                    Object.assign(result, { message: 'Deal successfully opened.', deal: deal });
+                                    Object.assign(result, {deal: deal});
                                     res.json(result);
                                 })
                             });
@@ -298,52 +334,53 @@ router.post('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.findOne({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err, deal) => {
-        if (err) res.send(err);
-        res.json(deal);
-    });
+    if (user){
+        Deal.findById(req.params.id, (err, deal) => {
+            if (err) res.send(err);
+            res.json(deal);
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
+    }
 });
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.findOne({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err, deal) => {
-        if (err) res.send(err);
-        Object.assign(deal, req.body);
-
-        deal.save((err) => {
+    if (user){
+        Deal.findById(req.params.id, (err, deal) => {
             if (err) res.send(err);
-            res.json(deal);
+            Object.assign(deal, req.body);
+
+            deal.save((err) => {
+                if (err) res.send(err);
+                res.json(deal);
+            });
         });
-    });
+    }
+    else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
+    }
 });
 
 router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.remove({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err) => {
-        if (err) res.send(err);
-        res.json({ message: 'Deal successfully deleted.' });
-    })
+    if (user) {
+        Deal.remove({_id: req.params.id}, (err) => {
+            if (err) res.send(err);
+            res.json(result);
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.json(result);
+    }
 });
 
 module.exports = router;
