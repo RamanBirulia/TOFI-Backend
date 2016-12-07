@@ -15,25 +15,25 @@ const closedStatus = 'CLOSED';
 
 router.get('/', (req, res) => {
     let user = req.decoded._doc;
-    if (user.admin){
+    if (user.admin) {
         Deal.find({}, (err, deals) => {
             if (err) res.send(err);
             res.json(deals);
         });
     }
-    else if (user){
+    else if (user) {
         Deal.find({
             $or: [
-                { buyerId: user._id },
-                { sellerId: user._id }
+                {buyerId: user._id},
+                {sellerId: user._id}
             ]
         }, (err, deals) => {
             if (err) res.send(err);
             res.json(deals);
         });
     }
-    else{
-        res.json({ success: false, message: 'Permission denied.' });
+    else {
+        res.json({success: false, message: 'Permission denied.'});
     }
 });
 
@@ -41,22 +41,29 @@ router.post('/', (req, res) => {
     let user = req.decoded._doc;
     let deal = new Deal();
 
-    if (!user) res.json({ success: false, message: 'Permission denied.' });
-
     let result = { success: true, errors: {} };
     let amount = 0;
+
+    if (!user){
+        Object.assign(result, { success: false, message: 'Permission denied.' });
+        res.json(result);
+    }
 
     Object.assign(deal, req.body);
     Object.assign(deal, { dateOpened: new Date() });
     Object.assign(deal, { granted: 0, status: openedStatus });
 
-    if (deal.side == buySide) {
-        Object.assign(deal, { buyerId: user._id });
-    } else if (deal.side == sellSide) {
-        Object.assign(deal, { sellerId: user._id });
-    } else {
-        Object.assign(result.errors, { side: 'Invalid side value.' });
-        res.json(result);
+    switch (deal.side){
+        case buySide:
+            Object.assign(deal, { buyerId: user._id });
+            break;
+        case sellSide:
+            Object.assign(deal, { sellerId: user._id });
+            break;
+        default:
+            Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
+            res.json(result);
+            break;
     }
 
     let checkAccount = (cb) => {
@@ -65,7 +72,8 @@ router.post('/', (req, res) => {
             if (err) res.send(err);
             if (account.currency == 'USD'){
                 if (deal.units * deal.buyPrice > account.amount) {
-                    res.json({ success: false, message: 'Insufficient funds.' });
+                    Object.assign(result, { success: false, message: 'Insufficient funds.' });
+                    res.json(result);
                 } else {
                     account.amount -= deal.units * deal.buyPrice;
                     account.blocked += deal.units * deal.buyPrice;
@@ -76,7 +84,8 @@ router.post('/', (req, res) => {
                 }
             } else {
                 if (deal.units > account.amount) {
-                    res.json({ success: false, message: 'Insufficient funds.' });
+                    Object.assign(result, { success: false, message: 'Insufficient funds.' });
+                    res.json(result);
                 } else {
                     account.amount -= deal.units;
                     account.blocked += deal.units;
@@ -212,7 +221,7 @@ router.post('/', (req, res) => {
                 });
                 return;
             default:
-                Object.assign(result.errors, { status: 'Invalid side value.' });
+                Object.assign(result.errors, { side: 'Invalid side value.' });
                 res.json(result);
                 return;
         }
@@ -281,7 +290,9 @@ router.post('/', (req, res) => {
     };
 
     checkAccount(() => {
-        checkMarket(saveDeal);
+        checkMarket(() => {
+            saveDeal();
+        });
     });
 });
 
