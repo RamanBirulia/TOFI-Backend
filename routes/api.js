@@ -28,7 +28,10 @@ router.post('/register', (req, res) => {
             { email: req.body.email }
         ]
     }, (err, users) => {
-        if (err) res.send(err);
+        if (err) {
+            res.send(err);
+            return;
+        }
 
         users.forEach((user) => {
             result.success &= !(user.login == req.body.login || user.email == req.body.email);
@@ -38,15 +41,19 @@ router.post('/register', (req, res) => {
                 Object.assign(result.errors, { email: 'Registration failed. E-mail is already used.'});
         });
 
-        if (!result.success) res.json(result);
-        else {
+        if (!result.success) {
+            res.json(result);
+        } else {
             let user = new User();
             Object.assign(user, req.body);
             user.admin = false;
 
             // TODO: hashing password here before save
             user.save((err) => {
-                if (err) res.send(err);
+                if (err) {
+                    res.send(err);
+                    return;
+                }
                 res.json(user);
             });
         }
@@ -59,7 +66,10 @@ router.post('/authenticate', (req, res) => {
     User.findOne({
         login: req.body.login
     }, (err, user) => {
-        if (err) res.send(err);
+        if (err) {
+            res.send(err);
+            return;
+        }
 
         if (!user) {
             Object.assign(result, {success: false, errors: {user: 'Authentication failed. User not found.' }});

@@ -14,13 +14,19 @@ router.get('/', (req, res) => {
 
     if (user.admin){
         User.find({}, (err, users) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(result, {results: users});
             res.json(result);
         });
     } else if (user){
         User.findOne({_id: user.id}, (err, user) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(user);
         });
     } else {
@@ -35,7 +41,10 @@ router.get('/:id', (req, res) => {
 
     if (user.admin || user._id == req.params.id){
         User.findById(req.params.id, (err, user) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(user);
         });
     } else {
@@ -50,11 +59,17 @@ router.put('/:id', (req, res) => {
 
     if (user.admin || user._id == req.params.id){
         User.findById(req.params.id, (err, user) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(user, req.body);
 
             user.save((err) => {
-                if (err) res.send(err);
+                if (err) {
+                    res.send(err);
+                    return;
+                }
                 res.json(user);
             });
         });
@@ -73,7 +88,10 @@ router.delete('/:id', (req, res) => {
         User.remove({
             _id: req.params.id
         }, (err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(result);
         });
     }

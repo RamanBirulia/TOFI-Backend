@@ -14,7 +14,10 @@ router.get('/', (req, res) => {
 
     if (user) {
         Account.find({userId: user._id}, (err, accounts) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(result, {results: accounts});
             res.json(result);
         });
@@ -34,7 +37,10 @@ router.post('/', (req, res) => {
         Object.assign(account, req.body);
 
         account.save((err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(account);
         });
     } else {
@@ -49,7 +55,10 @@ router.get('/:id', (req, res) => {
 
     if (user) {
         Account.findById(req.params.id, (err, account) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             if (user._id != account.userId){
                 Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
                 res.json(result);
@@ -67,14 +76,20 @@ router.put('/:id', (req, res) => {
 
     if (user) {
         Account.findById(req.params.id, (err, account) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             if (user._id != account.userId){
                 Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
                 res.json(result);
             } else {
                 Object.assign(account, req.body);
                 account.save((err) => {
-                    if (err) res.send(err);
+                    if (err) {
+                        res.send(err);
+                        return;
+                    }
                     res.json(account);
                 });
             }

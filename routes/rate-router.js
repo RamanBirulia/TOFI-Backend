@@ -5,28 +5,34 @@ var express = require('express');
 var router = express.Router();
 
 var Rate = require('../models/rate');
+let defaultResult = {success: true, errors: {}};
 
 router.get('/', (req, res) => {
+    let result = defaultResult;
     Rate.find().sort({ date: -1 }).exec((err, rates) => {
         if (err) res.send(err);
-        res.json({ success: true, rates: rates });
+        Object.assign(result, {success: true, results: rates});
+        res.json(result);
     });
 });
 
 router.post('/', (req, res) => {
     let rate = new Rate();
     Object.assign(rate, req.body);
+    let result = defaultResult;
 
     rate.save((err) =>{
         if (err) res.send(err);
-        res.json({ success: true, message: 'New rate added.', rate: rate });
+        res.json(rate);
     });
 });
 
 router.get('/:count', (req, res) => {
-    Rate.find({}).sort({ date: -1 }).limit(req.params.count).exec((err, rates) => {
+    let result = defaultResult;
+    Rate.find().sort({ date: -1 }).limit(+req.params.count).exec((err, rates) => {
         if (err) res.send(err);
-        res.json({ success: true, rates: rates });
+        Object.assign(result, {success: true, results: rates});
+        res.json(result);
     });
 });
 

@@ -26,7 +26,10 @@ router.get('/', (req, res) => {
                 {sellerId: user._id}
             ]
         }, (err, deals) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(result, {results: deals});
             res.json(result);
         });
@@ -48,7 +51,10 @@ router.get('/opened', (req, res) => {
             ],
             status: openedStatus
         }, (err, deals) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(result, {results: deals});
             res.json(result);
         });
@@ -70,7 +76,10 @@ router.get('/closed', (req, res) => {
             ],
             status: closedStatus
         }, (err, deals) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(result, {results: deals});
             res.json(result);
         });
@@ -90,11 +99,13 @@ router.post('/', (req, res) => {
     if (!user){
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
         res.json(result);
+        return;
     }
 
     Object.assign(deal, req.body);
     Object.assign(deal, { dateOpened: new Date() });
     Object.assign(deal, { granted: 0, status: openedStatus });
+
 
     switch (deal.side){
         case buySide:
@@ -106,13 +117,16 @@ router.post('/', (req, res) => {
         default:
             Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
             res.json(result);
-            break;
+            return;
     }
 
     let checkAccount = (cb) => {
         let currency = deal.side == buySide ? 'USD' : 'EUR';
         Account.findOne({ userId: user._id, currency: currency }, (err, account) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             if (account.currency == 'USD'){
                 if (deal.units * deal.buyPrice > account.amount) {
                     Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
@@ -121,7 +135,10 @@ router.post('/', (req, res) => {
                     account.amount -= deal.units * deal.buyPrice;
                     account.blocked += deal.units * deal.buyPrice;
                     account.save((err) => {
-                        if (err) res.send(err);
+                        if (err) {
+                            res.send(err);
+                            return;
+                        }
                         cb();
                     });
                 }
@@ -133,7 +150,10 @@ router.post('/', (req, res) => {
                     account.amount -= deal.units;
                     account.blocked += deal.units;
                     account.save((err) => {
-                       if (err) res.send(err);
+                       if (err) {
+                           res.send(err);
+                           return;
+                       }
                         cb();
                     });
                 }
@@ -149,7 +169,9 @@ router.post('/', (req, res) => {
                     status: openedStatus,
                     sellPrice: { $lte: deal.buyPrice },
                 }).sort({sellPrice: 1}).exec((err, deals) => {
-                    if (err) res.send(err);
+                    if (err) {
+                        res.send(err);
+                    }
                     else {
                         let n = deals.length;
                         let checkDeal = (ind = 0) => {
@@ -165,22 +187,38 @@ router.post('/', (req, res) => {
                                     userId: deals[ind].sellerId,
                                     currency: 'EUR'
                                 }, (err, account) => {
+                                    if (err) {
+                                        res.send(err);
+                                        return;
+                                    }
                                     account.blocked -= possible;
                                     account.save((err) => {
-                                        if (err) res.send(err);
+                                        if (err) {
+                                            res.send(err);
+                                            return;
+                                        }
                                         Account.findOne({
                                             userId: deals[ind].sellerId,
                                             currency: 'USD'
                                         }, (err, account) => {
-                                            if (err) res.send(err);
+                                            if (err) {
+                                                res.send(err);
+                                                return;
+                                            }
                                             account.amount += deals[ind].sellPrice * possible;
                                             amount += deals[ind].sellPrice * possible;
                                             account.save((err) => {
-                                                if (err) res.send(err);
+                                                if (err) {
+                                                    res.send(err);
+                                                    return;
+                                                }
                                                 if (deals[ind].granted == deals[ind].units){
                                                     deals[ind].status = closedStatus;
                                                     deals[ind].save((err) => {
-                                                        if (err) res.send(err);
+                                                        if (err) {
+                                                            res.send(err);
+                                                            return;
+                                                        }
                                                         if (deal.granted == deal.units) {
                                                             deal.status = closedStatus;
                                                             cb();
@@ -188,6 +226,9 @@ router.post('/', (req, res) => {
                                                             checkDeal(ind + 1);
                                                         }
                                                     });
+                                                } else {
+                                                    deal.status = closedStatus;
+                                                    cb();
                                                 }
                                             });
                                         });
@@ -198,14 +239,16 @@ router.post('/', (req, res) => {
                         checkDeal();
                     }
                 });
-                return;
+                break;
             case sellSide:
                 Deal.find({
                     side: buySide,
                     status: openedStatus,
                     buyPrice: { $gte: deal.sellPrice }
                 }, (err, deals) => {
-                    if (err) res.send(err);
+                    if (err) {
+                        res.send(err);
+                    }
                     else {
                         let n = deals.length;
                         let checkDeal = (ind = 0) => {
@@ -230,15 +273,24 @@ router.post('/', (req, res) => {
                                             userId: deals[ind].buyerId,
                                             currency: 'EUR'
                                         }, (err, account) => {
-                                            if (err) res.send(err);
+                                            if (err) {
+                                                res.send(err);
+                                                return;
+                                            }
                                             account.amount += possible;
                                             amount += possible;
                                             account.save((err) => {
-                                                if (err) res.send(err);
+                                                if (err) {
+                                                    res.send(err);
+                                                    return;
+                                                }
                                                 if (deals[ind].granted == deals[ind].units){
                                                     deals[ind].status = closedStatus;
                                                     deals[ind].save((err) => {
-                                                        if (err) res.send(err);
+                                                        if (err) {
+                                                            res.send(err);
+                                                            return;
+                                                        }
                                                         if (deal.granted == deal.units) {
                                                             deal.status = closedStatus;
                                                             cb();
@@ -246,6 +298,9 @@ router.post('/', (req, res) => {
                                                             checkDeal(ind + 1);
                                                         }
                                                     });
+                                                } else {
+                                                    deal.status = closedStatus;
+                                                    cb();
                                                 }
                                             });
                                         });
@@ -256,7 +311,7 @@ router.post('/', (req, res) => {
                         checkDeal();
                     }
                 });
-                return;
+                break;
             default:
                 Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
                 res.json(result);
@@ -266,17 +321,25 @@ router.post('/', (req, res) => {
 
     let saveDeal = () => {
         deal.save((err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+            }
             else {
                 if (deal.side == buySide) {
                     Account.findOne({
                         userId: user._id,
                         currency: 'EUR'
                     }, (err, account) => {
-                        if (err) res.send(err);
+                        if (err) {
+                            res.send(err);
+                            return;
+                        }
                         account.amount += deal.granted;
                         account.save((err) => {
-                            if (err) res.send(err);
+                            if (err) {
+                                res.send(err);
+                                return;
+                            }
                             Account.findOne({
                                 userId: user._id,
                                 currency: 'USD'
@@ -287,9 +350,11 @@ router.post('/', (req, res) => {
                                     account.blocked = 0;
                                 }
                                 account.save((err) => {
-                                    if (err) res.send(err);
-                                    Object.assign(result, {deal: deal});
-                                    res.json(result);
+                                    if (err) {
+                                        res.send(err);
+                                        return;
+                                    }
+                                    res.json(deal);
                                 })
                             });
                         });
@@ -299,10 +364,16 @@ router.post('/', (req, res) => {
                         userId: user._id,
                         currency: 'USD'
                     }, (err, account) => {
-                        if (err) res.send(err);
+                        if (err) {
+                            res.send(err);
+                            return;
+                        }
                         account.amount += deal.granted;
                         account.save((err) => {
-                            if (err) res.send(err);
+                            if (err) {
+                                res.send(err);
+                                return;
+                            }
                             Account.findOne({
                                 userId: user._id,
                                 currency: 'EUR'
@@ -313,9 +384,11 @@ router.post('/', (req, res) => {
                                     account.blocked = 0;
                                 }
                                 account.save((err) => {
-                                    if (err) res.send(err);
-                                    Object.assign(result, {deal: deal});
-                                    res.json(result);
+                                    if (err) {
+                                        res.send(err);
+                                        return;
+                                    }
+                                    res.json(deal);
                                 })
                             });
                         });
@@ -338,7 +411,10 @@ router.get('/:id', (req, res) => {
 
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(deal);
         });
     } else {
@@ -353,7 +429,10 @@ router.put('/:id', (req, res) => {
 
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             Object.assign(deal, req.body);
 
             deal.save((err) => {
@@ -374,7 +453,10 @@ router.delete('/:id', (req, res) => {
 
     if (user) {
         Deal.remove({_id: req.params.id}, (err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             res.json(result);
         });
     } else {

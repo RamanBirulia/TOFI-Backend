@@ -48,23 +48,41 @@ router.get('/setup-users', (req, res) => {
         let accountUSD = new Account();
         Object.assign(accountUSD, { userId: user._id, currency: 'USD', amount: amountUSD, blocked: 0 });
         accountEUR.save((err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             accountUSD.save((err) => {
-                if (err) res.send(err);
+                if (err) {
+                    res.send(err);
+                    return;
+                }
                 cb();
             });
         });
     };
 
     User.remove({}, (err) => {
-        if (err) res.send(err);
+        if (err) {
+            res.send(err);
+            return;
+        }
         nick.save((err) => {
-            if (err) res.send(err);
+            if (err) {
+                res.send(err);
+                return;
+            }
             petr.save((err) => {
-                if (err) res.send(err);
+                if (err) {
+                    res.send(err);
+                    return;
+                }
                 createAccounts(petr, 1000000, 1000000, () => {
                     vlad.save((err) => {
-                        if (err) res.send(err);
+                        if (err) {
+                            res.send(err);
+                            return;
+                        }
                         createAccounts(vlad, 120000, 120000, () => {
                             console.log('Users saved successfully.');
                             res.json({ success: true });
@@ -98,7 +116,7 @@ router.get('/setup-rates', (req, res) => {
             },
             reason => {
                 console.log('Error during data initialization.');
-                res.json({ success: true });
+                res.json({ success: false });
             }
         );
     });
@@ -110,6 +128,10 @@ router.get('/setup-instruments', (req, res) => {
 
     Instrument.remove({}, (err) => {
         instrument.save((err) => {
+            if (err) {
+                res.send(err);
+                return;
+            }
             console.log('Instrument added.');
             res.json({ success: true });
         });
@@ -118,8 +140,12 @@ router.get('/setup-instruments', (req, res) => {
 
 router.get('/setup-deals', (req, res) => {
     Deal.remove({}, (err) => {
-        if (err) res.send(err);
-        res.json({ success: true, message: 'Deals dropped.' });
+        if (err) {
+            res.send(err);
+            return;
+        }
+        console.log('Deals dropped.');
+        res.json({ success: true });
     });
 });
 
