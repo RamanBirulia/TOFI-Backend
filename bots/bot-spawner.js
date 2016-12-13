@@ -37,15 +37,30 @@ let slow = () => {
 slow();
 */
 
-let child = spawn('node', ['frank-bot.js', 42]);
-child.on('exit', () => {
+/*
+let frankChild = spawn('node', ['frank-bot.js', 42]);
+frankChild.on('exit', () => {
     console.log('Child exited ' + 42);
 });
 
-child.stdout.on('data', (data) => {
+frankChild.stdout.on('data', (data) => {
     console.log('stdout: ' + data);
 });
 
-child.stderr.on('data', (data) => {
+frankChild.stderr.on('data', (data) => {
+    console.log('stderr: ' + data);
+});
+*/
+
+let edwardChild = spawn('node', ['edward-bot.js', 42]);
+edwardChild.on('exit', () => {
+    console.log('Child exited ' + 42);
+});
+
+edwardChild.stdout.on('data', (data) => {
+    console.log('stdout: ' + data);
+});
+
+edwardChild.stderr.on('data', (data) => {
     console.log('stderr: ' + data);
 });

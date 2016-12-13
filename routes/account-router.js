@@ -15,15 +15,15 @@ router.get('/', (req, res) => {
     if (user) {
         Account.find({userId: user._id}, (err, accounts) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: accounts});
+                res.status(200).send(result);
             }
-            Object.assign(result, {results: accounts});
-            res.json(result);
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -33,19 +33,19 @@ router.post('/', (req, res) => {
 
     if (user) {
         let account = new Account();
-        Object.assign(account, { userId: user._id, blocked: 0 });
+        Object.assign(account, {userId: user._id, blocked: 0});
         Object.assign(account, req.body);
 
         account.save((err) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(account);
             }
-            res.json(account);
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -56,17 +56,19 @@ router.get('/:id', (req, res) => {
     if (user) {
         Account.findById(req.params.id, (err, account) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                if (user._id != account.userId){
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                } else {
+                    res.status(200).send(account);
+                }
             }
-            if (user._id != account.userId){
-                Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-                res.json(result);
-            } else res.json(account);
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -77,31 +79,31 @@ router.put('/:id', (req, res) => {
     if (user) {
         Account.findById(req.params.id, (err, account) => {
             if (err) {
-                res.send(err);
-                return;
-            }
-            if (user._id != account.userId){
-                Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-                res.json(result);
+                res.status(502).send(err);
             } else {
-                Object.assign(account, req.body);
-                account.save((err) => {
-                    if (err) {
-                        res.send(err);
-                        return;
-                    }
-                    res.json(account);
-                });
+                if (user._id != account.userId){
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                } else {
+                    account.amount += req.body.amount;
+                    account.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(account);
+                        }
+                    });
+                }
             }
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
 router.delete('/:id', (req, res) => {
-    res.send('Investigating this part.');
+    res.status(200).send('Keep calm and wait for it.');
 });
 
 module.exports = router;

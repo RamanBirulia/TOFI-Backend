@@ -29,33 +29,32 @@ router.post('/register', (req, res) => {
         ]
     }, (err, users) => {
         if (err) {
-            res.send(err);
-            return;
-        }
-
-        users.forEach((user) => {
-            result.success &= !(user.login == req.body.login || user.email == req.body.email);
-            if (user.login == req.body.login)
-                Object.assign(result.errors, { login: 'Registration failed. Login is already used.'});
-            if (user.email == req.body.email)
-                Object.assign(result.errors, { email: 'Registration failed. E-mail is already used.'});
-        });
-
-        if (!result.success) {
-            res.json(result);
+            res.status(502).send(err);
         } else {
-            let user = new User();
-            Object.assign(user, req.body);
-            user.admin = false;
-
-            // TODO: hashing password here before save
-            user.save((err) => {
-                if (err) {
-                    res.send(err);
-                    return;
-                }
-                res.json(user);
+            users.forEach((user) => {
+                result.success &= !(user.login == req.body.login || user.email == req.body.email);
+                if (user.login == req.body.login)
+                    Object.assign(result.errors, { login: 'Registration failed. Login is already used.'});
+                if (user.email == req.body.email)
+                    Object.assign(result.errors, { email: 'Registration failed. E-mail is already used.'});
             });
+
+            if (!result.success) {
+                res.status(401).send(result);
+            } else {
+                let user = new User();
+                Object.assign(user, req.body);
+                user.role = 'trader';
+
+                // TODO: hashing password here before save
+                user.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(user);
+                    }
+                });
+            }
         }
     });
 });
@@ -67,21 +66,20 @@ router.post('/authenticate', (req, res) => {
         login: req.body.login
     }, (err, user) => {
         if (err) {
-            res.send(err);
-            return;
-        }
-
-        if (!user) {
-            Object.assign(result, {success: false, errors: {user: 'Authentication failed. User not found.' }});
-            res.json(result);
+            res.status(502).send(err);
         } else {
-            if (user.password != req.body.password) {
-                Object.assign(result, {success: false, errors: {password: 'Authentication failed. Wrong password.' }});
-                res.json(result);
+            if (!user) {
+                Object.assign(result, {success: false, errors: {user: 'Authentication failed. User not found.'}});
+                res.status(401).send(result);
             } else {
-                var token = jwt.sign(user, config.get('magicSecret'), {expiresIn: '1440m'});
-                Object.assign(result, {token: token});
-                res.json(result);
+                if (user.password != req.body.password) {
+                    Object.assign(result, {success: false, errors: {password: 'Authentication failed. Wrong password.'}});
+                    res.status(401).send(result);
+                } else {
+                    var token = jwt.sign(user, config.get('magicSecret'), {expiresIn: '1440m'});
+                    Object.assign(result, {token: token});
+                    res.status(200).send(result);
+                }
             }
         }
     });
@@ -95,7 +93,7 @@ router.use((req, res, next) => {
         jwt.verify(token, config.get('magicSecret'), (err, decoded) => {
             if (err) {
                 Object.assign(result, {success: false, errors: {verification: 'Failed to authenticate token.' }});
-                res.json(result);
+                res.status(401).send(result);
             } else {
                 req.decoded = decoded;
                 next();
@@ -108,7 +106,7 @@ router.use((req, res, next) => {
 });
 
 router.get('/', (req, res) => {
-    res.json(req.decoded._doc);
+    res.status(200).send(req.decoded._doc);
 });
 
 router.use('/users', userRouter);

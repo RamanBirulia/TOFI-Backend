@@ -9,10 +9,13 @@ let defaultResult = {success: true, errors: {}};
 
 router.get('/', (req, res) => {
     let result = defaultResult;
-    Rate.find().sort({ date: -1 }).exec((err, rates) => {
-        if (err) res.send(err);
-        Object.assign(result, {success: true, results: rates});
-        res.json(result);
+    Rate.find().sort({date: -1}).exec((err, rates) => {
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            Object.assign(result, {success: true, results: rates});
+            res.status(200).send(result);
+        }
     });
 });
 
@@ -22,17 +25,23 @@ router.post('/', (req, res) => {
     let result = defaultResult;
 
     rate.save((err) =>{
-        if (err) res.send(err);
-        res.json(rate);
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(rate);
+        }
     });
 });
 
 router.get('/:count', (req, res) => {
     let result = defaultResult;
-    Rate.find().sort({ date: -1 }).limit(+req.params.count).exec((err, rates) => {
-        if (err) res.send(err);
-        Object.assign(result, {success: true, results: rates});
-        res.json(result);
+    Rate.find().sort({date: -1}).limit(+req.params.count).exec((err, rates) => {
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            Object.assign(result, {success: true, results: rates});
+            res.status(200).send(result);
+        }
     });
 });
 

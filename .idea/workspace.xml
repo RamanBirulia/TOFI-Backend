@@ -2,25 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4f05a037-ba5e-44f6-a72e-7a979108cdab" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bots/bot-spawner.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bots/frank-bot.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/models/bot.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/models/role.js" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/bears/journal/WiredTigerLog.0000000008" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bots/edward-bot.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/WiredTiger.wt" afterPath="$PROJECT_DIR$/bears/WiredTiger.wt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0--5688514369811233702.wt" afterPath="$PROJECT_DIR$/bears/collection-0--5688514369811233702.wt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-2378553686676055084.wt" afterPath="$PROJECT_DIR$/bears/collection-0-2378553686676055084.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-6644173523975379844.wt" afterPath="$PROJECT_DIR$/bears/collection-0-6644173523975379844.wt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/diagnostic.data/metrics.2016-12-11T20-40-33Z-00000" afterPath="$PROJECT_DIR$/bears/diagnostic.data/metrics.2016-12-11T20-40-33Z-00000" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/diagnostic.data/metrics.interim" afterPath="$PROJECT_DIR$/bears/diagnostic.data/metrics.interim" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-2378553686676055084.wt" afterPath="$PROJECT_DIR$/bears/index-1-2378553686676055084.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-6644173523975379844.wt" afterPath="$PROJECT_DIR$/bears/index-1-6644173523975379844.wt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/journal/WiredTigerLog.0000000011" afterPath="$PROJECT_DIR$/bears/journal/WiredTigerLog.0000000011" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/sizeStorer.wt" afterPath="$PROJECT_DIR$/bears/sizeStorer.wt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/WiredTiger.turtle" afterPath="$PROJECT_DIR$/bears/WiredTiger.turtle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/mongod.lock" afterPath="$PROJECT_DIR$/bears/mongod.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/models/user.js" afterPath="$PROJECT_DIR$/models/user.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bots/bot-spawner.js" afterPath="$PROJECT_DIR$/bots/bot-spawner.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bots/frank-bot.js" afterPath="$PROJECT_DIR$/bots/frank-bot.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/account-router.js" afterPath="$PROJECT_DIR$/routes/account-router.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/api.js" afterPath="$PROJECT_DIR$/routes/api.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/deal-router.js" afterPath="$PROJECT_DIR$/routes/deal-router.js" />
@@ -28,7 +22,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/manage-api.js" afterPath="$PROJECT_DIR$/routes/manage-api.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/rate-router.js" afterPath="$PROJECT_DIR$/routes/rate-router.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/user-router.js" afterPath="$PROJECT_DIR$/routes/user-router.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.js" afterPath="$PROJECT_DIR$/test.js" />
     </list>
     <ignored path="trading-platform.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,11 +44,60 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="account.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/account.js">
+      <file leaf-file-name="bot-spawner.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bots/bot-spawner.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="80">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="12" selection-end-column="3" />
+            <state relative-caret-position="320">
+              <caret line="52" column="2" selection-start-line="52" selection-start-column="2" selection-end-line="52" selection-end-column="2" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+                <element signature="e#129#706#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="frank-bot.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="128">
+              <caret line="10" column="16" selection-start-line="10" selection-start-column="16" selection-end-line="10" selection-end-column="16" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+                <element signature="n#!!block;n#constructor#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#onStart#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#calcMovingAverage#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#postDeal#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#addFunds#0;n#FrankBot#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="manage-api.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/routes/manage-api.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="288">
+              <caret line="124" column="47" selection-start-line="124" selection-start-column="47" selection-end-line="124" selection-end-column="47" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+                <element signature="e#421#512#0" expanded="false" />
+                <element signature="e#557#2756#0" expanded="false" />
+                <element signature="e#2801#3620#0" expanded="false" />
+                <element signature="e#3671#4038#0" expanded="false" />
+                <element signature="e#4083#4277#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="edward-bot.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bots/edward-bot.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1264">
+              <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
               <folding>
                 <element signature="e#0#44#0" expanded="false" />
               </folding>
@@ -63,70 +105,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="deal.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/deal.js">
+      <file leaf-file-name="deal-router.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/routes/deal-router.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="80">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="21" selection-end-column="3" />
+            <state relative-caret-position="400">
+              <caret line="33" column="45" selection-start-line="33" selection-start-column="45" selection-end-line="33" selection-end-column="45" />
               <folding>
                 <element signature="e#0#44#0" expanded="false" />
+                <element signature="e#14979#18029#0" expanded="false" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="instrument.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/instrument.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="64">
-              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="8" selection-end-column="3" />
-              <folding>
-                <element signature="e#0#44#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rate.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/rate.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="64">
-              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="3" />
-              <folding>
-                <element signature="e#0#44#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="user.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/models/user.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="15" column="52" selection-start-line="15" selection-start-column="52" selection-end-line="15" selection-end-column="52" />
-              <folding>
-                <element signature="e#0#44#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="role.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/role.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="16">
-              <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="bot.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/bot.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -166,19 +153,20 @@
         <option value="$PROJECT_DIR$/models/account.js" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/test.js" />
-        <option value="$PROJECT_DIR$/bots/bot-spawner.js" />
-        <option value="$PROJECT_DIR$/routes/rate-router.js" />
         <option value="$PROJECT_DIR$/app.js" />
-        <option value="$PROJECT_DIR$/routes/api.js" />
-        <option value="$PROJECT_DIR$/routes/instrument-router.js" />
-        <option value="$PROJECT_DIR$/routes/account-router.js" />
-        <option value="$PROJECT_DIR$/routes/manage-api.js" />
-        <option value="$PROJECT_DIR$/routes/user-router.js" />
-        <option value="$PROJECT_DIR$/routes/deal-router.js" />
-        <option value="$PROJECT_DIR$/bots/frank-bot.js" />
         <option value="$PROJECT_DIR$/models/role.js" />
         <option value="$PROJECT_DIR$/models/bot.js" />
         <option value="$PROJECT_DIR$/models/user.js" />
+        <option value="$PROJECT_DIR$/routes/api.js" />
+        <option value="$PROJECT_DIR$/routes/rate-router.js" />
+        <option value="$PROJECT_DIR$/routes/account-router.js" />
+        <option value="$PROJECT_DIR$/routes/instrument-router.js" />
+        <option value="$PROJECT_DIR$/routes/user-router.js" />
+        <option value="$PROJECT_DIR$/routes/manage-api.js" />
+        <option value="$PROJECT_DIR$/bots/frank-bot.js" />
+        <option value="$PROJECT_DIR$/bots/bot-spawner.js" />
+        <option value="$PROJECT_DIR$/bots/edward-bot.js" />
+        <option value="$PROJECT_DIR$/routes/deal-router.js" />
       </list>
     </option>
   </component>
@@ -267,7 +255,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="models" />
+              <option name="myItemId" value="config" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -433,33 +421,34 @@
       <workItem from="1481308626180" duration="1006000" />
       <workItem from="1481310308544" duration="821000" />
       <workItem from="1481321874637" duration="3458000" />
-      <workItem from="1481478217355" duration="15474000" />
+      <workItem from="1481478217355" duration="27702000" />
+      <workItem from="1481586396111" duration="1097000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="118624000" />
+    <option name="totallyTimeSpent" value="131949000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="26" width="1368" height="743" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="1.0" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32744783" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="1.0" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32852563" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -496,18 +485,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="61" />
+      <option name="time" value="74" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
@@ -638,13 +620,6 @@
     <entry file="file://$PROJECT_DIR$/routes/trade-api.js" />
     <entry file="file://$PROJECT_DIR$/routes/users.js" />
     <entry file="file://$PROJECT_DIR$/routes/init-api.js" />
-    <entry file="file://$PROJECT_DIR$/config/config.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="25" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/routes/bear-api.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="251">
@@ -691,75 +666,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="640">
           <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="59" column="28" selection-start-line="59" selection-start-column="28" selection-end-line="59" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/rate-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="9" column="31" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/instrument-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="47" column="36" selection-start-line="47" selection-start-column="36" selection-end-line="47" selection-end-column="36" />
-          <folding>
-            <element signature="e#240#487#0" expanded="false" />
-            <element signature="e#522#808#0" expanded="false" />
-            <element signature="e#845#1032#0" expanded="false" />
-            <element signature="e#1072#1273#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/api.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="62" column="43" selection-start-line="62" selection-start-column="43" selection-end-line="62" selection-end-column="43" />
-          <folding>
-            <element signature="e#630#1778#0" expanded="false" />
-            <element signature="e#1825#2634#0" expanded="false" />
-            <element signature="e#2669#3312#0" expanded="false" />
-            <element signature="e#3346#3381#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/account-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1298">
-          <caret line="90" column="31" selection-start-line="90" selection-start-column="31" selection-end-line="90" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/manage-api.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="53" column="13" selection-start-line="50" selection-start-column="21" selection-end-line="53" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/user-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="93" column="13" selection-start-line="93" selection-start-column="13" selection-end-line="93" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -767,101 +673,41 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="434">
           <caret line="41" column="14" selection-start-line="41" selection-start-column="14" selection-end-line="41" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/deal-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding>
-            <element signature="e#388#950#0" expanded="false" />
-            <element signature="e#990#1586#0" expanded="false" />
-            <element signature="e#1626#2222#0" expanded="false" />
-            <element signature="e#2257#16383#0" expanded="false" />
-            <element signature="e#3101#4634#0" expanded="false" />
-            <element signature="e#4667#13098#0" expanded="false" />
-            <element signature="e#13126#16282#0" expanded="false" />
-            <element signature="e#16420#16824#0" expanded="false" />
-            <element signature="e#16861#17406#0" expanded="false" />
-            <element signature="e#17446#17852#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bots/bot-spawner.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="50" column="3" selection-start-line="50" selection-start-column="3" selection-end-line="50" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-            <element signature="e#129#706#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-750">
-          <caret line="25" column="5" selection-start-line="25" selection-start-column="5" selection-end-line="25" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-            <element signature="n#!!block;n#authentificate#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
-            <marker date="1481506588566" expanded="false" signature="2486:2706" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/bot.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/account.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="12" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/deal.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="21" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/instrument.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="8" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="112">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/deal.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/rate.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="144">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/account.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="14" column="23" selection-start-line="14" selection-start-column="23" selection-end-line="14" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="15" column="41" selection-start-line="15" selection-start-column="41" selection-end-line="15" selection-end-column="41" />
         </state>
       </provider>
     </entry>
@@ -869,16 +715,128 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="16">
           <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/user.js">
+    <entry file="file://$PROJECT_DIR$/models/bot.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="15" column="52" selection-start-line="15" selection-start-column="52" selection-end-line="15" selection-end-column="52" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="944">
+          <caret line="59" column="28" selection-start-line="59" selection-start-column="28" selection-end-line="59" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/config.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="128">
+          <caret line="8" column="25" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/api.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="496">
+          <caret line="42" column="36" selection-start-line="42" selection-start-column="36" selection-end-line="42" selection-end-column="36" />
           <folding>
             <element signature="e#0#44#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/account-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1282">
+          <caret line="100" column="28" selection-start-line="100" selection-start-column="28" selection-end-line="100" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/instrument-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="754">
+          <caret line="51" column="32" selection-start-line="51" selection-start-column="32" selection-end-line="51" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/user-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1600">
+          <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/rate-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="640">
+          <caret line="42" column="32" selection-start-line="42" selection-start-column="32" selection-end-line="42" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bots/bot-spawner.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="320">
+          <caret line="52" column="2" selection-start-line="52" selection-start-column="2" selection-end-line="52" selection-end-column="2" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="e#129#706#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bots/edward-bot.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1264">
+          <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="128">
+          <caret line="10" column="16" selection-start-line="10" selection-start-column="16" selection-end-line="10" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="n#!!block;n#constructor#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#onStart#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#calcMovingAverage#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#postDeal#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#addFunds#0;n#FrankBot#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/manage-api.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="124" column="47" selection-start-line="124" selection-start-column="47" selection-end-line="124" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="e#421#512#0" expanded="false" />
+            <element signature="e#557#2756#0" expanded="false" />
+            <element signature="e#2801#3620#0" expanded="false" />
+            <element signature="e#3671#4038#0" expanded="false" />
+            <element signature="e#4083#4277#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/deal-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="33" column="45" selection-start-line="33" selection-start-column="45" selection-end-line="33" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="e#14979#18029#0" expanded="false" />
           </folding>
         </state>
       </provider>

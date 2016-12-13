@@ -40,16 +40,18 @@ class FrankBot{
                                 console.log(FrankBot.calcMovingAverage(rates));
                                 let rate = FrankBot.calcMovingAverage(rates);
                                 let side = randomInteger(0, 1) == 1 ? buySide : sellSide;
+
                                 //let side = buySide;
                                 //let side = sellSide;
+
                                 if (side == buySide){
                                     console.log("Now I'm gonna buy some.");
                                     let units = randomInteger(50, 100);
-                                    this.postDeal(side, units, rate);
+                                    this.postDeal(side, units, rate, makeDeal);
                                 } else if (side == sellSide) {
                                     console.log("Now I'm gonna sell some.");
                                     let units = randomInteger(50, 100);
-                                    this.postDeal(side, units, rate);
+                                    this.postDeal(side, units, rate, makeDeal);
                                 } else {
                                     console.log("Hm, It's pretty defficult to make a decision.");
                                 }
@@ -125,7 +127,7 @@ class FrankBot{
         });
     }
 
-    postDeal(side, units, rate){
+    postDeal(side, units, rate, cb){
         let body = {};
         body['side'] = side;
         body['units'] = units;
@@ -134,7 +136,6 @@ class FrankBot{
         } else if (side == sellSide) {
             body['sellPrice'] = rate;
         }
-
 
         request({
             method:'POST',
@@ -146,9 +147,30 @@ class FrankBot{
         }, (err, res) => {
             if (err) throw err;
             console.log(res.body);
+            cb();
         })
+    }
+
+    addFunds(currency, amount){
+        for (let i = 0; i < this.accounts.length; i++){
+            let account = this.accounts[i];
+            if (account.currency == currency){
+                request({
+                    url: 'http://localhost:3000/api/accounts/' + account._id,
+                    method: 'PUT',
+                    form: {
+                        amount: amount
+                    },
+                    headers: {
+                        'x-access-token': this.token
+                    }
+                }, (err, res) => {
+                    console.log(res.body);
+                });
+            }
+        }
     }
 }
 
-let frank = new FrankBot('Petr.Mitrichev', 'password');
+let frank = new FrankBot('Vlad.Isenbaev', 'password');
 frank.onStart();

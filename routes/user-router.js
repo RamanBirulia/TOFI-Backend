@@ -12,26 +12,26 @@ router.get('/', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.admin){
+    if (user.role == 'admin'){
         User.find({}, (err, users) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: users});
+                res.status(200).send(result);
             }
-            Object.assign(result, {results: users});
-            res.json(result);
         });
-    } else if (user){
+    } else if (user.role == 'trader'){
         User.findOne({_id: user.id}, (err, user) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
             }
-            res.json(user);
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -39,17 +39,17 @@ router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.admin || user._id == req.params.id){
+    if (user.role == 'admin' || (user.role == 'trader' && user._id == req.params.id)){
         User.findById(req.params.id, (err, user) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
             }
-            res.json(user);
         });
     } else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -60,23 +60,22 @@ router.put('/:id', (req, res) => {
     if (user.admin || user._id == req.params.id){
         User.findById(req.params.id, (err, user) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(user, req.body);
+                user.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(user);
+                    }
+                });
             }
-            Object.assign(user, req.body);
-
-            user.save((err) => {
-                if (err) {
-                    res.send(err);
-                    return;
-                }
-                res.json(user);
-            });
         });
     }
     else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -89,15 +88,15 @@ router.delete('/:id', (req, res) => {
             _id: req.params.id
         }, (err) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(result);
             }
-            res.json(result);
         });
     }
     else {
-        Object.assign(result, {success: false, errors: {user: 'Permission denied.' }});
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 

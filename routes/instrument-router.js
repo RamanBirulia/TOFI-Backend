@@ -11,37 +11,35 @@ router.get('/', (req, res) => {
     let result = defaultResult;
     Instrument.find({}, (err, instruments) => {
         if (err) {
-            res.send(err);
-            return;
+            res.status(502).send(err);
+        } else {
+            Object.assign(result, {results: instruments});
+            res.status(200).send(result);
         }
-        Object.assign(result, {results:instruments});
-        res.json(result);
     });
 });
 
 router.post('/', (req, res) => {
+    let result = defaultResult;
     let instrument = new Instrument();
     Object.assign(instrument, req.body);
 
-    let result = { success: true, errors: {} };
     instrument.save((err) => {
         if (err) {
-            res.send(err);
-        }
-        else {
-            res.json(instrument);
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(instrument);
         }
     });
 });
 
 router.get('/:id', (req, res) => {
-    Instrument.findOne({ _id: req.params.id }, (err, instrument) => {
+    Instrument.findOne({_id: req.params.id}, (err, instrument) => {
         if (err){
-            res.send(err);
-            return;
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(instrument);
         }
-
-        res.json(instrument);
     });
 });
 
@@ -49,10 +47,10 @@ router.delete('/:id', (req, res) => {
     let result = defaultResult;
     Instrument.remove({ _id: req.params.id }, (err) => {
         if (err) {
-            res.send(err);
-            return;
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(result);
         }
-        res.json(result);
     })
 });
 

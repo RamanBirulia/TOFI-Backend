@@ -19,7 +19,22 @@ router.get('/', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user) {
+    if (user.admin){
+        let options = {};
+        if (req.body.date){
+            Object.assign(options, { dateOpened: { $gte: req.body.date }});
+        }
+        Deal.find(options, (err, deals) => {
+            if (err) {
+                console.log(err);
+                res.status(502).send(err);
+            } else {
+                console.log(deals);
+                Object.assign(result, {results: deals});
+                res.status(200).send(result);
+            }
+        });
+    } else if (user.role == 'trader') {
         Deal.find({
             $or: [
                 {buyerId: user._id},
@@ -27,15 +42,15 @@ router.get('/', (req, res) => {
             ]
         }, (err, deals) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: deals});
+                res.status(200).send(result);
             }
-            Object.assign(result, {results: deals});
-            res.json(result);
         });
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        res.status(401).send(result);
     }
 });
 
@@ -52,15 +67,15 @@ router.get('/opened', (req, res) => {
             status: openedStatus
         }, (err, deals) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: deals});
+                res.status(200).send(result);
             }
-            Object.assign(result, {results: deals});
-            res.json(result);
         });
     } else {
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -77,15 +92,15 @@ router.get('/closed', (req, res) => {
             status: closedStatus
         }, (err, deals) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: deals});
+                res.status(200).send(result);
             }
-            Object.assign(result, {results: deals});
-            res.json(result);
         });
     } else {
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -96,66 +111,42 @@ router.post('/', (req, res) => {
     let result = defaultResult;
     let amount = 0;
 
-    if (!user){
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
-        return;
-    }
-
-    Object.assign(deal, req.body);
-    Object.assign(deal, { dateOpened: new Date() });
-    Object.assign(deal, { granted: 0, status: openedStatus });
-
-
-    switch (deal.side){
-        case buySide:
-            Object.assign(deal, { buyerId: user._id });
-            break;
-        case sellSide:
-            Object.assign(deal, { sellerId: user._id });
-            break;
-        default:
-            Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
-            res.json(result);
-            return;
-    }
-
     let checkAccount = (cb) => {
         let currency = deal.side == buySide ? 'USD' : 'EUR';
         Account.findOne({ userId: user._id, currency: currency }, (err, account) => {
             if (err) {
-                res.send(err);
-                return;
-            }
-            if (account.currency == 'USD'){
-                if (deal.units * deal.buyPrice > account.amount) {
-                    Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
-                    res.json(result);
-                } else {
-                    account.amount -= deal.units * deal.buyPrice;
-                    account.blocked += deal.units * deal.buyPrice;
-                    account.save((err) => {
-                        if (err) {
-                            res.send(err);
-                            return;
-                        }
-                        cb();
-                    });
-                }
+                res.status(502).send(err);
             } else {
-                if (deal.units > account.amount) {
-                    Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
-                    res.json(result);
+                if (account.currency == 'USD'){
+                    if (deal.units * deal.buyPrice > account.amount) {
+                        Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'}});
+                        res.status(403).send(result);
+                    } else {
+                        account.amount -= deal.units * deal.buyPrice;
+                        account.blocked += deal.units * deal.buyPrice;
+                        account.save((err) => {
+                            if (err) {
+                                res.status(502).send(err);
+                            } else {
+                                cb();
+                            }
+                        });
+                    }
                 } else {
-                    account.amount -= deal.units;
-                    account.blocked += deal.units;
-                    account.save((err) => {
-                       if (err) {
-                           res.send(err);
-                           return;
-                       }
-                        cb();
-                    });
+                    if (deal.units > account.amount) {
+                        Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
+                        res.status(403).send(result);
+                    } else {
+                        account.amount -= deal.units;
+                        account.blocked += deal.units;
+                        account.save((err) => {
+                            if (err) {
+                                res.status(502).send(err);
+                            } else {
+                                cb();
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -170,9 +161,8 @@ router.post('/', (req, res) => {
                     sellPrice: { $lte: deal.buyPrice },
                 }).sort({sellPrice: 1}).exec((err, deals) => {
                     if (err) {
-                        res.send(err);
-                    }
-                    else {
+                        res.status(502).send(err);
+                    } else {
                         let n = deals.length;
                         let checkDeal = (ind = 0) => {
                             if (ind == n) {
@@ -180,6 +170,7 @@ router.post('/', (req, res) => {
                             } else {
                                 let residue = deal.units - deal.granted;
                                 let possible = Math.min(deals[ind].units - deals[ind].granted, residue);
+
                                 deals[ind].granted += possible;
                                 deal.granted += possible;
 
@@ -188,51 +179,54 @@ router.post('/', (req, res) => {
                                     currency: 'EUR'
                                 }, (err, account) => {
                                     if (err) {
-                                        res.send(err);
-                                        return;
-                                    }
-                                    account.blocked -= possible;
-                                    account.save((err) => {
-                                        if (err) {
-                                            res.send(err);
-                                            return;
-                                        }
-                                        Account.findOne({
-                                            userId: deals[ind].sellerId,
-                                            currency: 'USD'
-                                        }, (err, account) => {
+                                        res.status(502).send(err);
+                                    } else {
+                                        account.blocked -= possible;
+                                        account.save((err) => {
                                             if (err) {
-                                                res.send(err);
-                                                return;
+                                                res.status(502).send(err);
+                                            } else {
+                                                Account.findOne({
+                                                    userId: deals[ind].sellerId,
+                                                    currency: 'USD'
+                                                }, (err, account) => {
+                                                    if (err) {
+                                                        res.status(502).send(err);
+                                                    } else {
+                                                        account.amount += deals[ind].sellPrice * possible;
+                                                        amount += deals[ind].sellPrice * possible;
+                                                        account.save((err) => {
+                                                            if (err) {
+                                                                res.status(502).send(err);
+                                                            } else {
+                                                                if (deals[ind].granted == deals[ind].units){
+                                                                    deals[ind].status = closedStatus;
+                                                                    deals[ind].dateClosed = new Date();
+                                                                    deals[ind].save((err) => {
+                                                                        if (err) {
+                                                                            res.status(502).send(err);
+                                                                        } else {
+                                                                            if (deal.granted == deal.units) {
+                                                                                deal.status = closedStatus;
+                                                                                deal.dateClosed = new Date();
+                                                                                cb();
+                                                                            } else {
+                                                                                checkDeal(ind + 1);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                } else {
+                                                                    deal.status = closedStatus;
+                                                                    deal.dateClosed = new Date();
+                                                                    cb();
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                });
                                             }
-                                            account.amount += deals[ind].sellPrice * possible;
-                                            amount += deals[ind].sellPrice * possible;
-                                            account.save((err) => {
-                                                if (err) {
-                                                    res.send(err);
-                                                    return;
-                                                }
-                                                if (deals[ind].granted == deals[ind].units){
-                                                    deals[ind].status = closedStatus;
-                                                    deals[ind].save((err) => {
-                                                        if (err) {
-                                                            res.send(err);
-                                                            return;
-                                                        }
-                                                        if (deal.granted == deal.units) {
-                                                            deal.status = closedStatus;
-                                                            cb();
-                                                        } else {
-                                                            checkDeal(ind + 1);
-                                                        }
-                                                    });
-                                                } else {
-                                                    deal.status = closedStatus;
-                                                    cb();
-                                                }
-                                            });
                                         });
-                                    });
+                                    }
                                 });
                             }
                         };
@@ -247,9 +241,8 @@ router.post('/', (req, res) => {
                     buyPrice: { $gte: deal.sellPrice }
                 }, (err, deals) => {
                     if (err) {
-                        res.send(err);
-                    }
-                    else {
+                        res.status(502).send(err);
+                    } else {
                         let n = deals.length;
                         let checkDeal = (ind = 0) => {
                             if (ind == n) {
@@ -257,6 +250,7 @@ router.post('/', (req, res) => {
                             } else {
                                 let residue = deal.units - deal.granted;
                                 let possible = Math.min(deals[ind].units - deals[ind].granted, residue);
+
                                 deals[ind].granted += possible;
                                 deal.granted += possible;
 
@@ -265,45 +259,52 @@ router.post('/', (req, res) => {
                                     currency: 'USD'
                                 }, (err, account) => {
                                     account.blocked -= possible * deal.sellPrice;
-                                    account.blocked -= possible * (deals[ind].buyPrice - deal.sellPrice);
-                                    account.amount += possible * (deals[ind].buyPrice - deal.sellPrice);
+                                    let positiveDifference = possible * (deals[ind].buyPrice - deal.sellPrice);
+                                    account.blocked -= positiveDifference;
+                                    account.amount += positiveDifference;
                                     account.save((err) => {
-                                        if (err) res.send(err);
-                                        Account.findOne({
-                                            userId: deals[ind].buyerId,
-                                            currency: 'EUR'
-                                        }, (err, account) => {
-                                            if (err) {
-                                                res.send(err);
-                                                return;
-                                            }
-                                            account.amount += possible;
-                                            amount += possible;
-                                            account.save((err) => {
+                                        if (err) {
+                                            res.status(502).send(err);
+                                        } else {
+                                            Account.findOne({
+                                                userId: deals[ind].buyerId,
+                                                currency: 'EUR'
+                                            }, (err, account) => {
                                                 if (err) {
-                                                    res.send(err);
-                                                    return;
-                                                }
-                                                if (deals[ind].granted == deals[ind].units){
-                                                    deals[ind].status = closedStatus;
-                                                    deals[ind].save((err) => {
+                                                    res.status(502).send(err);
+                                                } else {
+                                                    account.amount += possible;
+                                                    amount += possible;
+                                                    account.save((err) => {
                                                         if (err) {
-                                                            res.send(err);
-                                                            return;
-                                                        }
-                                                        if (deal.granted == deal.units) {
-                                                            deal.status = closedStatus;
-                                                            cb();
+                                                            res.status(502).send(err);
                                                         } else {
-                                                            checkDeal(ind + 1);
+                                                            if (deals[ind].granted == deals[ind].units){
+                                                                deals[ind].status = closedStatus;
+                                                                deals[ind].dateClosed = new Date();
+                                                                deals[ind].save((err) => {
+                                                                    if (err) {
+                                                                        res.status(502).send(err);
+                                                                    } else {
+                                                                        if (deal.granted == deal.units) {
+                                                                            deal.status = closedStatus;
+                                                                            deal.dateClosed = new Date();
+                                                                            cb();
+                                                                        } else {
+                                                                            checkDeal(ind + 1);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                deal.status = closedStatus;
+                                                                deal.dateClosed = new Date();
+                                                                cb();
+                                                            }
                                                         }
                                                     });
-                                                } else {
-                                                    deal.status = closedStatus;
-                                                    cb();
                                                 }
                                             });
-                                        });
+                                        }
                                     });
                                 });
                             }
@@ -314,7 +315,7 @@ router.post('/', (req, res) => {
                 break;
             default:
                 Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
-                res.json(result);
+                res.status(403).send(result);
                 return;
         }
     };
@@ -331,33 +332,29 @@ router.post('/', (req, res) => {
                         currency: 'EUR'
                     }, (err, account) => {
                         if (err) {
-                            res.send(err);
-                            return;
-                        }
-                        account.amount += deal.granted;
-                        account.save((err) => {
-                            if (err) {
-                                res.send(err);
-                                return;
-                            }
-                            Account.findOne({
-                                userId: user._id,
-                                currency: 'USD'
-                            }, (err, account) => {
-                                account.blocked -= amount;
-                                if (deal.status == closedStatus){
-                                    account.amount += account.blocked;
-                                    account.blocked = 0;
+                            res.status(502).send(err);
+                        } else {
+                            account.amount += deal.granted;
+                            account.save((err) => {
+                                if (err) {
+                                    res.status(502).send(err);
+                                } else {
+                                    Account.findOne({
+                                        userId: user._id,
+                                        currency: 'USD'
+                                    }, (err, account) => {
+                                        account.blocked -= amount;
+                                        account.save((err) => {
+                                            if (err) {
+                                                res.status(502).send(err);
+                                            } else {
+                                                res.status(200).json(deal);
+                                            }
+                                        })
+                                    });
                                 }
-                                account.save((err) => {
-                                    if (err) {
-                                        res.send(err);
-                                        return;
-                                    }
-                                    res.json(deal);
-                                })
                             });
-                        });
+                        }
                     });
                 } else {
                     Account.findOne({
@@ -365,44 +362,62 @@ router.post('/', (req, res) => {
                         currency: 'USD'
                     }, (err, account) => {
                         if (err) {
-                            res.send(err);
-                            return;
-                        }
-                        account.amount += deal.granted;
-                        account.save((err) => {
-                            if (err) {
-                                res.send(err);
-                                return;
-                            }
-                            Account.findOne({
-                                userId: user._id,
-                                currency: 'EUR'
-                            }, (err, account) => {
-                                account.blocked -= amount;
-                                if (deal.status == closedStatus){
-                                    account.amount += account.blocked;
-                                    account.blocked = 0;
+                            res.status(502).send(err);
+                        } else {
+                            account.amount += deal.granted;
+                            account.save((err) => {
+                                if (err) {
+                                    res.status(502).send(err);
+                                } else {
+                                    Account.findOne({
+                                        userId: user._id,
+                                        currency: 'EUR'
+                                    }, (err, account) => {
+                                        account.blocked -= amount;
+                                        account.save((err) => {
+                                            if (err) {
+                                                res.status(502).send(err);
+                                            } else {
+                                                res.status(200).json(deal);
+                                            }
+                                        })
+                                    });
                                 }
-                                account.save((err) => {
-                                    if (err) {
-                                        res.send(err);
-                                        return;
-                                    }
-                                    res.json(deal);
-                                })
                             });
-                        });
+                        }
                     });
                 }
             }
         });
     };
 
-    checkAccount(() => {
-        checkMarket(() => {
-            saveDeal();
+    if (!user){
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
+    } else {
+        Object.assign(deal, req.body);
+        Object.assign(deal, { dateOpened: new Date() });
+        Object.assign(deal, { granted: 0, status: openedStatus });
+
+        switch (deal.side){
+            case buySide:
+                Object.assign(deal, { buyerId: user._id });
+                break;
+            case sellSide:
+                Object.assign(deal, { sellerId: user._id });
+                break;
+            default:
+                Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
+                res.status(403).send(result);
+                return;
+        }
+
+        checkAccount(() => {
+            checkMarket(() => {
+                saveDeal();
+            });
         });
-    });
+    }
 });
 
 router.get('/:id', (req, res) => {
@@ -412,14 +427,14 @@ router.get('/:id', (req, res) => {
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(deal);
             }
-            res.json(deal);
         });
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        res.status(401).send(result);
     }
 });
 
@@ -430,20 +445,22 @@ router.put('/:id', (req, res) => {
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                Object.assign(deal, req.body);
+                deal.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(deal);
+                    }
+                });
             }
-            Object.assign(deal, req.body);
-
-            deal.save((err) => {
-                if (err) res.send(err);
-                res.json(deal);
-            });
         });
     }
     else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        res.status(401).send(result);
     }
 });
 
@@ -454,14 +471,14 @@ router.delete('/:id', (req, res) => {
     if (user) {
         Deal.remove({_id: req.params.id}, (err) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(result);
             }
-            res.json(result);
         });
     } else {
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
-        res.json(result);
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 

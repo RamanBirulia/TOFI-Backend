@@ -85,7 +85,7 @@ router.get('/setup-users', (req, res) => {
                         }
                         createAccounts(vlad, 120000, 120000, () => {
                             console.log('Users saved successfully.');
-                            res.json({ success: true });
+                            res.send({ success: true });
                         });
                     });
                 });
@@ -112,11 +112,11 @@ router.get('/setup-rates', (req, res) => {
         })).then(
             value => {
                 console.log('Rates loaded.');
-                res.json({ success: true });
+                res.send({ success: true });
             },
             reason => {
                 console.log('Error during data initialization.');
-                res.json({ success: false });
+                res.send({ success: false });
             }
         );
     });
@@ -133,7 +133,7 @@ router.get('/setup-instruments', (req, res) => {
                 return;
             }
             console.log('Instrument added.');
-            res.json({ success: true });
+            res.send({ success: true });
         });
     });
 });
@@ -145,7 +145,7 @@ router.get('/setup-deals', (req, res) => {
             return;
         }
         console.log('Deals dropped.');
-        res.json({ success: true });
+        res.send({ success: true });
     });
 });
 
