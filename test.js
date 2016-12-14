@@ -5,7 +5,6 @@ var fs = require('fs');
 var parseSync = require('csv-parse/lib/sync');
 var http = require('http');
 var request = require('request');
-var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 
 let formatString = (path, search) => {
     let str = fs.readFileSync(path, 'utf-8');
@@ -43,4 +42,5 @@ let testRequestToLocalhost = () => {
     })
 };
 
-testRequestToLocalhost();
+//testRequestToLocalhost();
+//testRequestToLocalhost();

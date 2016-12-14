@@ -1,10 +1,11 @@
 /**
  * Created by wanfranck on 04.12.16.
  */
-var express = require('express');
-var router = express.Router();
 var fs = require('fs');
 var parseSync = require('csv-parse/lib/sync');
+
+var express = require('express');
+var router = express.Router();
 
 var User = require('../models/user');
 var Rate = require('../models/rate');
@@ -13,9 +14,7 @@ var Deal = require('../models/deal');
 var Account = require('../models/account');
 
 router.get('/', (req, res) => {
-    res.json({
-        message: 'Welcome to the coolest managing API on earth!'
-    });
+    res.json({message: 'Welcome to the coolest managing API on earth.'});
 });
 
 router.get('/setup-users', (req, res) => {
@@ -25,22 +24,26 @@ router.get('/setup-users', (req, res) => {
         name: 'Nick',
         surname: 'Cerminara',
         password: 'password',
-        admin: true
+        role: 'admin'
     });
     let petr = new User({
         email: 'petr.mitrichev@sample.com',
         login: 'Petr.Mitrichev',
         name: 'Petr',
         surname: 'Mitrichev',
-        password: 'password'
+        password: 'password',
+        role: 'trader'
     });
     let vlad = new User({
         email: 'vlad.isenbaev@sample.com',
         login: 'Vlad.Isenbaev',
         name: 'Vlad',
         surname: 'Isenbaev',
-        password: 'password'
+        password: 'password',
+        role: 'trader'
     });
+
+    let users = [nick, petr, vlad];
 
     let createAccounts = (user, amountEUR, amountUSD, cb) => {
         let accountEUR = new Account();
@@ -49,91 +52,102 @@ router.get('/setup-users', (req, res) => {
         Object.assign(accountUSD, { userId: user._id, currency: 'USD', amount: amountUSD, blocked: 0 });
         accountEUR.save((err) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                accountUSD.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        cb(user);
+                    }
+                });
             }
-            accountUSD.save((err) => {
-                if (err) {
-                    res.send(err);
-                    return;
-                }
-                cb();
-            });
         });
     };
 
     User.remove({}, (err) => {
         if (err) {
-            res.send(err);
-            return;
-        }
-        nick.save((err) => {
-            if (err) {
-                res.send(err);
-                return;
-            }
-            petr.save((err) => {
-                if (err) {
-                    res.send(err);
-                    return;
-                }
-                createAccounts(petr, 1000000, 1000000, () => {
-                    vlad.save((err) => {
+            res.status(502).send(err);
+        } else {
+            Promise.all(users.map(user => {
+                return new Promise((resolve, reject) => {
+                    user.save((err) => {
                         if (err) {
-                            res.send(err);
-                            return;
+                            reject(user);
+                        } else {
+                            if (user.role == 'admin'){
+                                resolve(user);
+                            } else {
+                                createAccounts(user, 1000, 1000, resolve);
+                            }
                         }
-                        createAccounts(vlad, 120000, 120000, () => {
-                            console.log('Users saved successfully.');
-                            res.send({ success: true });
-                        });
                     });
                 });
-            })
-        });
+            })).then(
+                value => {
+                    console.log('Users loaded.');
+                    res.status(200).send({success: true});
+                },
+                reason => {
+                    console.log('Errors during users setup.');
+                    res.status(502).send({success: false});
+                }
+            )
+        }
     });
 });
 
 router.get('/setup-rates', (req, res) => {
-    let rates = parseSync(fs.readFileSync('../initials/rates', 'utf-8'), {
+    let path = __dirname.split('/');
+    path = path.splice(0, path.length - 1);
+    path = path.join('/') + '/initials/rates';
+
+    let rates = parseSync(fs.readFileSync(path, 'utf-8'), {
         columns: true, encoding: 'UTF-8', delimiter: ','
+    }).map(rate => {
+        rate.date = rate.date.split('.').reverse().join('-');
+        return rate;
     });
 
     Rate.remove({}, (err) => {
-        Promise.all(rates.map((item) => {
-            return new Promise((resolve, reject) => {
-                let rate = new Rate();
-                Object.assign(rate, item);
-                rate.save((err) => {
-                    if (err) reject(err);
-                    resolve(rate);
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            Promise.all(rates.map((item) => {
+                return new Promise((resolve, reject) => {
+                    let rate = new Rate();
+                    Object.assign(rate, item);
+                    rate.save((err) => {
+                        if (err) reject(rate);
+                        else resolve(rate);
+                    });
                 });
-            });
-        })).then(
-            value => {
-                console.log('Rates loaded.');
-                res.send({ success: true });
-            },
-            reason => {
-                console.log('Error during data initialization.');
-                res.send({ success: false });
-            }
-        );
+            })).then(
+                value => {
+                    console.log('Rates loaded.');
+                    res.status(200).send({success: true});
+                },
+                reason => {
+                    console.log('Error during rates setup.');
+                    res.status(502).send({success: false});
+                }
+            );
+        }
     });
 });
 
 router.get('/setup-instruments', (req, res) => {
     let instrument = new Instrument();
-    Object.assign(instrument, { value: 'EUR/USD' });
+    Object.assign(instrument, {value: 'EUR/USD'});
 
     Instrument.remove({}, (err) => {
         instrument.save((err) => {
             if (err) {
-                res.send(err);
-                return;
+                res.status(502).send(err);
+            } else {
+                console.log('Instrument loaded.');
+                res.status(200).send({success: true});
             }
-            console.log('Instrument added.');
-            res.send({ success: true });
         });
     });
 });
@@ -141,11 +155,11 @@ router.get('/setup-instruments', (req, res) => {
 router.get('/setup-deals', (req, res) => {
     Deal.remove({}, (err) => {
         if (err) {
-            res.send(err);
-            return;
+            res.status(502).send(err);
+        } else {
+            console.log('Deals dropped.');
+            res.status(200).send({success: true});
         }
-        console.log('Deals dropped.');
-        res.send({ success: true });
     });
 });
 

@@ -14,38 +14,34 @@ const openedStatus = 'OPENED';
 const closedStatus = 'CLOSED';
 
 const defaultResult = {success: true, errors: {}};
+const defaultOptions = {limit: 15, page: 1};
 
 router.get('/', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ]
+    };
+
     let result = defaultResult;
 
-    if (user.admin){
-        let options = {};
-        if (req.body.date){
-            Object.assign(options, { dateOpened: { $gte: req.body.date }});
-        }
-        Deal.find(options, (err, deals) => {
-            if (err) {
-                console.log(err);
-                res.status(502).send(err);
-            } else {
-                console.log(deals);
-                Object.assign(result, {results: deals});
-                res.status(200).send(result);
-            }
-        });
-    } else if (user.role == 'trader') {
-        Deal.find({
-            $or: [
-                {buyerId: user._id},
-                {sellerId: user._id}
-            ]
-        }, (err, deals) => {
+    if (user) {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result, {results: deals});
-                res.status(200).send(result);
+                Deal.count(query, (err, count) => {
+                   if (err) {
+                       res.status(502).send(err);
+                   } else {
+                       Object.assign(result, {results: deals, count: count});
+                       res.status(200).send(result);
+                   }
+                });
             }
         });
     } else {
@@ -55,22 +51,32 @@ router.get('/', (req, res) => {
 });
 
 router.get('/opened', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ],
+        status: openedStatus
+    };
+
     let result = defaultResult;
 
     if (user) {
-        Deal.find({
-            $or: [
-                {buyerId: user._id},
-                {sellerId: user._id}
-            ],
-            status: openedStatus
-        }, (err, deals) => {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result, {results: deals});
-                res.status(200).send(result);
+                Deal.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: deals, count: count});
+                        res.status(200).send(result);
+                    }
+                });
             }
         });
     } else {
@@ -80,22 +86,32 @@ router.get('/opened', (req, res) => {
 });
 
 router.get('/closed', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ],
+        status: closedStatus
+    };
+
     let result = defaultResult;
 
     if (user) {
-        Deal.find({
-            $or: [
-                {buyerId: user._id},
-                {sellerId: user._id}
-            ],
-            status: closedStatus
-        }, (err, deals) => {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result, {results: deals});
-                res.status(200).send(result);
+                Deal.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: deals, count: count});
+                        res.status(200).send(result);
+                    }
+                });
             }
         });
     } else {
@@ -392,22 +408,22 @@ router.post('/', (req, res) => {
     };
 
     if (!user){
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
     } else {
         Object.assign(deal, req.body);
-        Object.assign(deal, { dateOpened: new Date() });
-        Object.assign(deal, { granted: 0, status: openedStatus });
+        Object.assign(deal, {dateOpened: new Date()});
+        Object.assign(deal, {granted: 0, status: openedStatus});
 
         switch (deal.side){
             case buySide:
-                Object.assign(deal, { buyerId: user._id });
+                Object.assign(deal, {buyerId: user._id});
                 break;
             case sellSide:
-                Object.assign(deal, { sellerId: user._id });
+                Object.assign(deal, {sellerId: user._id});
                 break;
             default:
-                Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
+                Object.assign(result, {success: false, errors: {side: 'Invalid side value.'}});
                 res.status(403).send(result);
                 return;
         }
@@ -429,11 +445,16 @@ router.get('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(deal);
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    res.status(200).send(deal);
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
             }
         });
     } else {
-        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
     }
 });
@@ -447,14 +468,20 @@ router.put('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(deal, req.body);
-                deal.save((err) => {
-                    if (err) {
-                        res.status(502).send(err);
-                    } else {
-                        res.status(200).send(deal);
-                    }
-                });
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    Object.assign(deal, req.body);
+                    deal.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(deal);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
+
             }
         });
     }
@@ -469,11 +496,23 @@ router.delete('/:id', (req, res) => {
     let result = defaultResult;
 
     if (user) {
-        Deal.remove({_id: req.params.id}, (err) => {
+        Deal.findById(req.params.id, (err, deal) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(result);
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    Deal.remove({_id: req.params.id}, (err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(result);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
+
             }
         });
     } else {
