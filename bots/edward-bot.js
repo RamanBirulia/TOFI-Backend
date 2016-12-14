@@ -4,7 +4,7 @@
 var request = require('request');
 
 let count = 0;
-let delay = ((+process.argv[2] + 2) * 100 + 50) * 240000;
+let delay = ((+process.argv[2] + 2) * 100 + 50) * 24;
 
 process.on('SIGHUP', (err, res) => {
     console.log('Edward #%d Got SIGHUP', +process.argv[2]);

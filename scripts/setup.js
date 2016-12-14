@@ -75,8 +75,23 @@ let setupInstruments = () => {
     });
 };
 
+let setupVariables = () => {
+    request({
+        method:'GET',
+        url:'http://localhost:3000/manage/setup-variables'
+    }, (err, res) => {
+        if (err) {
+            console.log(err);
+            throw err;
+        } else {
+            console.log(res.body);
+        }
+    });
+};
+
 getManageMessage();
 setupRates();
 setupUsers();
 setupDeals();
 setupInstruments();
+setupVariables();

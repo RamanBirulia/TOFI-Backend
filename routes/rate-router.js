@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
     });
 });
 
-router.get('/', (req, res) => {
+router.get('/:count', (req, res) => {
     let result = defaultResult;
     Rate.find().sort({date: -1}).limit(+req.params.count).exec((err, rates) => {
         if (err) {

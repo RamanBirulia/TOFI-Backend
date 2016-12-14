@@ -12,6 +12,7 @@ var Rate = require('../models/rate');
 var Instrument = require('../models/instrument');
 var Deal = require('../models/deal');
 var Account = require('../models/account');
+var Variable = require('../models/variable');
 
 router.get('/', (req, res) => {
     res.json({message: 'Welcome to the coolest managing API on earth.'});
@@ -161,6 +162,34 @@ router.get('/setup-deals', (req, res) => {
             res.status(200).send({success: true});
         }
     });
+});
+
+router.get('/setup-variables', (req, res) => {
+    let params = [
+        ['interval', '1000'],
+        ['path', 'maybe-once-but-not-now']
+    ];
+
+    Promise.all(params.map(param => {
+        return new Promise((resolve, reject) => {
+            let variable = new Variable();
+            Object.assign(variable, { key: param[0], value: param[1]});
+            variable.save((err) => {
+                if (err) reject(variable);
+                else resolve(variable);
+            })
+        })
+    })).then(
+        value => {
+            console.log('Variables loaded.');
+            res.status(200).send({success:true});
+        },
+        reason => {
+            console.log('Errors during variables setup.');
+            res.status(502).send({success:false});
+        }
+    )
+
 });
 
 module.exports = router;
