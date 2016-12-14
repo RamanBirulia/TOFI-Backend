@@ -2,29 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4f05a037-ba5e-44f6-a72e-7a979108cdab" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scripts/setup.js" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/bears/journal/WiredTigerLog.0000000011" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/WiredTiger.wt" afterPath="$PROJECT_DIR$/bears/WiredTiger.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0--5688514369811233702.wt" afterPath="$PROJECT_DIR$/bears/collection-0--5688514369811233702.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-2378553686676055084.wt" afterPath="$PROJECT_DIR$/bears/collection-0-2378553686676055084.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-5668252715134526325.wt" afterPath="$PROJECT_DIR$/bears/collection-0-5668252715134526325.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-6644173523975379844.wt" afterPath="$PROJECT_DIR$/bears/collection-0-6644173523975379844.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-0-7240263639599391080.wt" afterPath="$PROJECT_DIR$/bears/collection-0-7240263639599391080.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/collection-2-7240263639599391080.wt" afterPath="$PROJECT_DIR$/bears/collection-2-7240263639599391080.wt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/models/variables.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/diagnostic.data/metrics.2016-12-14T00-18-19Z-00000" afterPath="$PROJECT_DIR$/bears/diagnostic.data/metrics.2016-12-14T00-18-19Z-00000" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/diagnostic.data/metrics.interim" afterPath="$PROJECT_DIR$/bears/diagnostic.data/metrics.interim" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1--5688514369811233702.wt" afterPath="$PROJECT_DIR$/bears/index-1--5688514369811233702.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-2378553686676055084.wt" afterPath="$PROJECT_DIR$/bears/index-1-2378553686676055084.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-5668252715134526325.wt" afterPath="$PROJECT_DIR$/bears/index-1-5668252715134526325.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-6644173523975379844.wt" afterPath="$PROJECT_DIR$/bears/index-1-6644173523975379844.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-1-7240263639599391080.wt" afterPath="$PROJECT_DIR$/bears/index-1-7240263639599391080.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/index-3-7240263639599391080.wt" afterPath="$PROJECT_DIR$/bears/index-3-7240263639599391080.wt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/sizeStorer.wt" afterPath="$PROJECT_DIR$/bears/sizeStorer.wt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/WiredTiger.turtle" afterPath="$PROJECT_DIR$/bears/WiredTiger.turtle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bears/mongod.lock" afterPath="$PROJECT_DIR$/bears/mongod.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/deal-router.js" afterPath="$PROJECT_DIR$/routes/deal-router.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/manage-api.js" afterPath="$PROJECT_DIR$/routes/manage-api.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.js" afterPath="$PROJECT_DIR$/test.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bots/frank-bot.js" afterPath="$PROJECT_DIR$/bots/frank-bot.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/rate-router.js" afterPath="$PROJECT_DIR$/routes/rate-router.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/user-router.js" afterPath="$PROJECT_DIR$/routes/user-router.js" />
     </list>
     <ignored path="trading-platform.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -64,6 +48,24 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="frank-bot.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1552">
+              <caret line="171" column="16" selection-start-line="171" selection-start-column="16" selection-end-line="171" selection-end-column="16" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+                <element signature="n#!!block;n#constructor#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#calcMovingAverage#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#authentificate#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
+                <element signature="n#!!block;n#addFunds#0;n#FrankBot#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="manage-api.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/manage-api.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -83,17 +85,63 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="deal-router.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="deal-router.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/deal-router.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="103">
-              <caret line="18" column="30" selection-start-line="18" selection-start-column="30" selection-end-line="18" selection-end-column="30" />
+            <state relative-caret-position="288">
+              <caret line="52" column="36" selection-start-line="52" selection-start-column="36" selection-end-line="52" selection-end-column="36" />
               <folding>
                 <element signature="e#0#44#0" expanded="false" />
                 <element signature="e#433#1420#0" expanded="false" />
                 <element signature="e#1460#2481#0" expanded="false" />
                 <element signature="e#2521#3542#0" expanded="false" />
+                <element signature="e#3577#19597#0" expanded="false" />
+                <element signature="e#3724#5443#0" expanded="false" />
+                <element signature="e#5476#15636#0" expanded="false" />
                 <element signature="e#15664#18714#0" expanded="false" />
+                <element signature="e#19634#20345#0" expanded="false" />
+                <element signature="e#20382#21373#0" expanded="false" />
+                <element signature="e#21413#22375#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rate-router.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/routes/rate-router.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="224">
+              <caret line="16" column="41" selection-start-line="16" selection-start-column="41" selection-end-line="16" selection-end-column="41" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="user-router.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/routes/user-router.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
+                <element signature="e#277#1432#0" expanded="false" />
+                <element signature="e#1469#1980#0" expanded="false" />
+                <element signature="e#2017#2777#0" expanded="false" />
+                <element signature="e#2817#3299#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="variables.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/models/variables.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="2" column="3" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+              <folding>
+                <element signature="e#0#44#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -138,17 +186,18 @@
         <option value="$PROJECT_DIR$/models/bot.js" />
         <option value="$PROJECT_DIR$/models/user.js" />
         <option value="$PROJECT_DIR$/routes/api.js" />
-        <option value="$PROJECT_DIR$/routes/rate-router.js" />
         <option value="$PROJECT_DIR$/routes/account-router.js" />
         <option value="$PROJECT_DIR$/routes/instrument-router.js" />
-        <option value="$PROJECT_DIR$/routes/user-router.js" />
-        <option value="$PROJECT_DIR$/bots/frank-bot.js" />
         <option value="$PROJECT_DIR$/bots/bot-spawner.js" />
         <option value="$PROJECT_DIR$/bots/edward-bot.js" />
         <option value="$PROJECT_DIR$/routes/manage-api.js" />
         <option value="$PROJECT_DIR$/test.js" />
         <option value="$PROJECT_DIR$/scripts/setup.js" />
         <option value="$PROJECT_DIR$/routes/deal-router.js" />
+        <option value="$PROJECT_DIR$/routes/user-router.js" />
+        <option value="$PROJECT_DIR$/models/variables.js" />
+        <option value="$PROJECT_DIR$/routes/rate-router.js" />
+        <option value="$PROJECT_DIR$/bots/frank-bot.js" />
       </list>
     </option>
   </component>
@@ -223,20 +272,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="scripts" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trading-platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trading-platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="routes" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -251,21 +286,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="initials" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trading-platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trading-platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="config" />
+              <option name="myItemId" value="models" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -426,12 +447,12 @@
       <workItem from="1481321874637" duration="3458000" />
       <workItem from="1481478217355" duration="27702000" />
       <workItem from="1481586396111" duration="1097000" />
-      <workItem from="1481674618420" duration="4897000" />
+      <workItem from="1481674618420" duration="6090000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="136846000" />
+    <option name="totallyTimeSpent" value="138039000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="26" width="1368" height="743" extended-state="0" />
@@ -489,12 +510,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="81" />
+      <option name="time" value="87" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/routes/init-api.js" />
     <entry file="file://$PROJECT_DIR$/models/user.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -652,13 +672,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/instrument.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/deal.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -725,31 +738,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/account-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1282">
-          <caret line="100" column="28" selection-start-line="100" selection-start-column="28" selection-end-line="100" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/routes/instrument-router.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="754">
           <caret line="51" column="32" selection-start-line="51" selection-start-column="32" selection-end-line="51" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/user-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1600">
-          <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/rate-router.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="42" column="32" selection-start-line="42" selection-start-column="32" selection-end-line="42" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -759,23 +751,6 @@
           <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
           <folding>
             <element signature="e#0#44#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="10" column="16" selection-start-line="10" selection-start-column="16" selection-end-line="10" selection-end-column="16" />
-          <folding>
-            <element signature="e#0#44#0" expanded="false" />
-            <element signature="n#!!block;n#constructor#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#onStart#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#calcMovingAverage#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#postDeal#0;n#FrankBot#0" expanded="false" />
-            <element signature="n#!!block;n#addFunds#0;n#FrankBot#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -836,6 +811,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/routes/account-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="74" column="33" selection-start-line="74" selection-start-column="33" selection-end-line="74" selection-end-column="33" />
+          <folding>
+            <element signature="e#2114#3088#0" expanded="false" />
+            <element signature="e#3128#3187#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/routes/manage-api.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
@@ -853,16 +839,80 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/models/instrument.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="10" column="64" selection-start-line="10" selection-start-column="64" selection-end-line="10" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/routes/deal-router.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="103">
-          <caret line="18" column="30" selection-start-line="18" selection-start-column="30" selection-end-line="18" selection-end-column="30" />
+        <state relative-caret-position="288">
+          <caret line="52" column="36" selection-start-line="52" selection-start-column="36" selection-end-line="52" selection-end-column="36" />
           <folding>
             <element signature="e#0#44#0" expanded="false" />
             <element signature="e#433#1420#0" expanded="false" />
             <element signature="e#1460#2481#0" expanded="false" />
             <element signature="e#2521#3542#0" expanded="false" />
+            <element signature="e#3577#19597#0" expanded="false" />
+            <element signature="e#3724#5443#0" expanded="false" />
+            <element signature="e#5476#15636#0" expanded="false" />
             <element signature="e#15664#18714#0" expanded="false" />
+            <element signature="e#19634#20345#0" expanded="false" />
+            <element signature="e#20382#21373#0" expanded="false" />
+            <element signature="e#21413#22375#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/rate-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="16" column="41" selection-start-line="16" selection-start-column="41" selection-end-line="16" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/user-router.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="e#277#1432#0" expanded="false" />
+            <element signature="e#1469#1980#0" expanded="false" />
+            <element signature="e#2017#2777#0" expanded="false" />
+            <element signature="e#2817#3299#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/variables.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="2" column="3" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bots/frank-bot.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1552">
+          <caret line="171" column="16" selection-start-line="171" selection-start-column="16" selection-end-line="171" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+            <element signature="n#!!block;n#constructor#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#calcMovingAverage#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#authentificate#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#getAccounts#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#getRates#0;n#FrankBot#0" expanded="false" />
+            <element signature="n#!!block;n#addFunds#0;n#FrankBot#0" expanded="false" />
           </folding>
         </state>
       </provider>

@@ -40,10 +40,6 @@ class FrankBot{
                                 console.log(FrankBot.calcMovingAverage(rates));
                                 let rate = FrankBot.calcMovingAverage(rates);
                                 let side = randomInteger(0, 1) == 1 ? buySide : sellSide;
-
-                                //let side = buySide;
-                                //let side = sellSide;
-
                                 if (side == buySide){
                                     console.log("Now I'm gonna buy some.");
                                     let units = randomInteger(50, 100);

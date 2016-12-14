@@ -6,23 +6,34 @@ var router = express.Router();
 
 var User = require('../models/user');
 
-let defaultResult = {success: true, errors: {}};
+const defaultResult = {success: true, errors: {}};
+const defaultOptions = {limit: 15, page: 1};
 
 router.get('/', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { limit, page } = options;
+    const query = {};
+
     let result = defaultResult;
 
     if (user.role == 'admin'){
-        User.find({}, (err, users) => {
+        User.find(query).skip((page - 1) * limit).limit(limit).exec((err, users) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result, {results: users});
-                res.status(200).send(result);
+                User.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: users, count: count});
+                        res.status(200).send(result);
+                    }
+                });
             }
         });
     } else if (user.role == 'trader'){
-        User.findOne({_id: user.id}, (err, user) => {
+        User.findById(user._id, (err, user) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -57,7 +68,7 @@ router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.admin || user._id == req.params.id){
+    if (user.role == 'admin' || (user.role == 'trader' && user._id == req.params.id)){
         User.findById(req.params.id, (err, user) => {
             if (err) {
                 res.status(502).send(err);
@@ -83,7 +94,7 @@ router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.admin){
+    if (user.role == 'admin'){
         User.remove({
             _id: req.params.id
         }, (err) => {
