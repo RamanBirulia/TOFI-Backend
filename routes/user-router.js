@@ -10,9 +10,11 @@ const defaultResult = {success: true, errors: {}};
 const defaultOptions = {limit: 15, page: 1};
 
 router.get('/me', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
     const user = req.decoded._doc;
+
     if (user) {
-        User.findById(used._id, (err, user) => {
+        User.findById(user._id, (err, user) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -26,8 +28,8 @@ router.get('/me', (req, res) => {
 });
 
 router.put('/me', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
     let user = req.decoded._doc;
-    let result = defaultResult;
 
     if (user){
         User.findById(user._id, (err, user) => {
@@ -52,12 +54,12 @@ router.put('/me', (req, res) => {
 });
 
 router.get('/', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
+
     const user = req.decoded._doc;
     const options = Object.assign(defaultOptions, req.body || {});
     const { limit, page } = options;
     const query = {};
-
-    let result = defaultResult;
 
     if (user.role == 'admin') {
         User.find(query).skip((page - 1) * limit).limit(limit).exec((err, users) => {
@@ -81,6 +83,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
     const user = req.decoded._doc;
 
     if (user.role == 'admin'){
@@ -100,8 +103,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
+    const user = req.decoded._doc;
 
     if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
@@ -118,8 +121,8 @@ router.get('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
+    const user = req.decoded._doc;
 
     if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
@@ -144,13 +147,11 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
     let user = req.decoded._doc;
-    let result = defaultResult;
 
     if (user.role == 'admin'){
-        User.remove({
-            _id: req.params.id
-        }, (err) => {
+        User.removeById(req.params.id, (err) => {
             if (err) {
                 res.status(502).send(err);
             } else {

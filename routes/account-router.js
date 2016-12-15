@@ -6,11 +6,11 @@ var router = express.Router();
 
 var Account = require('../models/account');
 
-let defaultResult = {success: true, errors: {}};
+const defaultResult = {success: true, errors: {}};
 
 router.get('/', (req, res) => {
     let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Account.find({userId: user._id}, (err, accounts) => {
@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
     let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         let account = new Account();
@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Account.findById(req.params.id, (err, account) => {
@@ -74,7 +74,7 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Account.findById(req.params.id, (err, account) => {

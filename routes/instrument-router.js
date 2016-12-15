@@ -5,10 +5,10 @@ var express = require('express');
 var router = express.Router();
 
 var Instrument = require('../models/instrument');
-let defaultResult = {success: true, errors:{}};
+const defaultResult = {success: true, errors:{}};
 
 router.get('/', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
     Instrument.find({}, (err, instruments) => {
         if (err) {
             res.status(502).send(err);
@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
     let instrument = new Instrument();
     Object.assign(instrument, req.body);
 
@@ -44,7 +44,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
     Instrument.remove({ _id: req.params.id }, (err) => {
         if (err) {
             res.status(502).send(err);
