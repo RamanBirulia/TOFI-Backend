@@ -8,7 +8,8 @@ var ObjectId = Schema.Types.ObjectId;
 var AccountSchema = new Schema({
     userId: ObjectId,
     currency: String,
-    amount: Number
+    amount: Number,
+    blocked: Number
 });
 
 module.exports = mongoose.model('Account', AccountSchema);

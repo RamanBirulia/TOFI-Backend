@@ -6,59 +6,104 @@ var router = express.Router();
 
 var Account = require('../models/account');
 
+let defaultResult = {success: true, errors: {}};
+
 router.get('/', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Account.find({ userId: user._id }, (err, accounts) => {
-        if (err) res.send(err);
-        res.json({ success: true, account: accounts });
-    });
+    if (user) {
+        Account.find({userId: user._id}, (err, accounts) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: accounts});
+                res.status(200).send(result);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 router.post('/', (req, res) => {
     let user = req.decoded._doc;
-    let account = new Account();
-    Object.assign(account, { userId: user._id });
+    let result = defaultResult;
 
-    account.save((err) => {
-        if (err) res.send(err);
-        res.json({ success: true, message: 'Account created.', account: account });
-    });
+    if (user) {
+        let account = new Account();
+        Object.assign(account, {userId: user._id, blocked: 0});
+        Object.assign(account, req.body);
+
+        account.save((err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(account);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Account.findById(req.params.id, (err, account) => {
-        if (err) res.send(err);
-        if (user._id != account.userId){
-            res.json({ success: false, message: 'Permission denied.' });
-        }
-
-        res.json({ success: true, account: account });
-    });
+    if (user) {
+        Account.findById(req.params.id, (err, account) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (user._id != account.userId){
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                } else {
+                    res.status(200).send(account);
+                }
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Account.findById(req.params.id, (err, account) => {
-        if (err) res.send(err);
-        if (user._id != account.userId){
-            res.json({ success: false, message: 'Permission denied.' });
-        }
-
-        Object.assign(account, req.body);
-        account.save((err) => {
-            if (err) res.send(err);
-            res.json({ success: true, message: 'Account modified.' });
+    if (user) {
+        Account.findById(req.params.id, (err, account) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (user._id != account.userId){
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                } else {
+                    account.amount += req.body.amount;
+                    account.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(account);
+                        }
+                    });
+                }
+            }
         });
-    });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 router.delete('/:id', (req, res) => {
-    res.send("For now platform doesn't provide you with multiple accounts for one user.\n" +
-        "So you can't delete account for now.\n");
+    res.status(200).send('Keep calm and wait for it.');
 });
 
 module.exports = router;

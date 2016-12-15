@@ -3,6 +3,8 @@
  */
 var fs = require('fs');
 var parseSync = require('csv-parse/lib/sync');
+var http = require('http');
+var request = require('request');
 
 let formatString = (path, search) => {
     let str = fs.readFileSync(path, 'utf-8');
@@ -17,3 +19,28 @@ let testCSVLoading = () => {
 
     console.log(rates);
 };
+
+let testRequestToLocalhost = () => {
+    request({
+        method:'GET',
+        url: 'http://localhost:3000/'
+    }, (err, res) => {
+        if (err) throw err;
+        console.log(res.body);
+    });
+
+    request({
+        method:'POST',
+        url: 'http://localhost:3000/api/authenticate',
+        form: {
+            login: 'Petr.Mitrichev',
+            password: 'password'
+        }
+    }, (err, res) => {
+        if (err) throw err;
+        console.log(res.body);
+    })
+};
+
+//testRequestToLocalhost();
+//testRequestToLocalhost();

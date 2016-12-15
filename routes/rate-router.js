@@ -6,27 +6,43 @@ var router = express.Router();
 
 var Rate = require('../models/rate');
 
+const defaultResult = {success: true, errors: {}};
+
 router.get('/', (req, res) => {
-    Rate.find().sort({ date: -1 }).exec((err, rates) => {
-        if (err) res.send(err);
-        res.json({ success: true, rates: rates });
+    let result = defaultResult;
+    Rate.find().sort({date: -1}).exec((err, rates) => {
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            Object.assign(result, {success: true, results: rates});
+            res.status(200).send(result);
+        }
     });
 });
 
 router.post('/', (req, res) => {
     let rate = new Rate();
     Object.assign(rate, req.body);
+    let result = defaultResult;
 
     rate.save((err) =>{
-        if (err) res.send(err);
-        res.json({ success: true, message: 'New rate added.', rate: rate });
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(rate);
+        }
     });
 });
 
 router.get('/:count', (req, res) => {
-    Rate.find({}).sort({ date: -1 }).limit(req.params.count).exec((err, rates) => {
-        if (err) res.send(err);
-        res.json({ success: true, rates: rates });
+    let result = defaultResult;
+    Rate.find().sort({date: -1}).limit(+req.params.count).exec((err, rates) => {
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            Object.assign(result, {success: true, results: rates});
+            res.status(200).send(result);
+        }
     });
 });
 

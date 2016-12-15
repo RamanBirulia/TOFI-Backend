@@ -6,72 +6,161 @@ var router = express.Router();
 
 var User = require('../models/user');
 
-router.get('/', (req, res) => {
-    let user = req.decoded._doc;
+const defaultResult = {success: true, errors: {}};
+const defaultOptions = {limit: 15, page: 1};
 
-    if (user.admin){
-        User.find({}, (err, users) => {
-            if (err) res.send(err);
-            res.json(users);
+router.get('/me', (req, res) => {
+    const user = req.decoded._doc;
+    if (user) {
+        User.findById(used._id, (err, user) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
+            }
         });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
-    else if (user){
-        User.findOne({ _id: user.id }, (err, user) => {
-            if (err) res.send(err);
-            res.json(user);
+});
+
+router.put('/me', (req, res) => {
+    let user = req.decoded._doc;
+    let result = defaultResult;
+
+    if (user){
+        User.findById(user._id, (err, user) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(user, req.body);
+                user.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(user);
+                    }
+                });
+            }
         });
     }
     else {
-        res.json({ success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
+router.get('/', (req, res) => {
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { limit, page } = options;
+    const query = {};
+
+    let result = defaultResult;
+
+    if (user.role == 'admin') {
+        User.find(query).skip((page - 1) * limit).limit(limit).exec((err, users) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                User.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: users, count: count});
+                        res.status(200).send(result);
+                    }
+                });
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
+router.post('/', (req, res) => {
+    const user = req.decoded._doc;
+
+    if (user.role == 'admin'){
+        let newUser = new User();
+        Object.assign(newUser, req.body);
+        User.save((err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    if (user.admin || user._id == req.params.id){
+    if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
-            if (err) res.send(err);
-            res.json(user);
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
+            }
         });
-    }
-    else {
-        res.json({ success: false, message: 'Permission denied.' });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    if (user.admin || user._id == req.params.id){
+    if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
-            if (err) res.send(err);
-            Object.assign(user, req.body);
-
-            user.save((err) => {
-                if (err) res.send(err);
-                res.json(user);
-            });
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(user, req.body);
+                user.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(user);
+                    }
+                });
+            }
         });
     }
     else {
-        res.json({ success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
 router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    if (user.admin){
+    if (user.role == 'admin'){
         User.remove({
             _id: req.params.id
         }, (err) => {
-            if (err) res.send(err);
-            res.json({ success: true, message: 'User successfully deleted.' });
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(result);
+            }
         });
     }
     else {
-        res.json({ success: false, message: 'Permission denied.' });
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 

@@ -13,27 +13,110 @@ const sellSide = 'SELL';
 const openedStatus = 'OPENED';
 const closedStatus = 'CLOSED';
 
+const defaultResult = {success: true, errors: {}};
+const defaultOptions = {limit: 15, page: 1};
+
 router.get('/', (req, res) => {
-    let user = req.decoded._doc;
-    if (user.admin){
-        Deal.find({}, (err, deals) => {
-            if (err) res.send(err);
-            res.json(deals);
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ]
+    };
+
+    let result = defaultResult;
+
+    if (user) {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Deal.count(query, (err, count) => {
+                   if (err) {
+                       res.status(502).send(err);
+                   } else {
+                       Object.assign(result, {results: deals, count: count});
+                       res.status(200).send(result);
+                   }
+                });
+            }
         });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
     }
-    else if (user){
-        Deal.find({
-            $or: [
-                { buyerId: user._id },
-                { sellerId: user._id }
-            ]
-        }, (err, deals) => {
-            if (err) res.send(err);
-            res.json(deals);
+});
+
+router.get('/opened', (req, res) => {
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ],
+        status: openedStatus
+    };
+
+    let result = defaultResult;
+
+    if (user) {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Deal.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: deals, count: count});
+                        res.status(200).send(result);
+                    }
+                });
+            }
         });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
-    else{
-        res.json({ success: false, message: 'Permission denied.' });
+});
+
+router.get('/closed', (req, res) => {
+    const user = req.decoded._doc;
+    const options = Object.assign(defaultOptions, req.body || {});
+    const { page, limit } = options;
+    const query = {
+        $or: [
+            {buyerId: user._id},
+            {sellerId: user._id}
+        ],
+        status: closedStatus
+    };
+
+    let result = defaultResult;
+
+    if (user) {
+        Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Deal.count(query, (err, count) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: deals, count: count});
+                        res.status(200).send(result);
+                    }
+                });
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
     }
 });
 
@@ -41,38 +124,45 @@ router.post('/', (req, res) => {
     let user = req.decoded._doc;
     let deal = new Deal();
 
-    if (!user) res.json({ success: false, message: 'Permission denied.' });
-
-    let result = { success: true, errors: {} };
-
-    Object.assign(deal, req.body);
-    Object.assign(deal, { dateOpened: new Date() });
-    Object.assign(deal, { granted: 0, status: openedStatus });
-
-    if (deal.side == buySide) {
-        Object.assign(deal, { buyerId: user._id });
-    } else if (deal.side == sellSide) {
-        Object.assign(deal, { sellerId: user._id });
-    } else {
-        Object.assign(result.errors, { side: 'Invalid side value.' });
-        res.json(result);
-    }
+    let result = defaultResult;
+    let amount = 0;
 
     let checkAccount = (cb) => {
         let currency = deal.side == buySide ? 'USD' : 'EUR';
         Account.findOne({ userId: user._id, currency: currency }, (err, account) => {
-            if (err) res.send(err);
-            if (account.currency == 'USD'){
-                if (deal.units * deal.buyPrice > account.amount) {
-                    res.json({ success: false, message: 'Insufficient funds.' });
-                } else {
-                    cb();
-                }
+            if (err) {
+                res.status(502).send(err);
             } else {
-                if (deal.units > account.amount) {
-                    res.json({ success: false, message: 'Insufficient funds.' });
+                if (account.currency == 'USD'){
+                    if (deal.units * deal.buyPrice > account.amount) {
+                        Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'}});
+                        res.status(403).send(result);
+                    } else {
+                        account.amount -= deal.units * deal.buyPrice;
+                        account.blocked += deal.units * deal.buyPrice;
+                        account.save((err) => {
+                            if (err) {
+                                res.status(502).send(err);
+                            } else {
+                                cb();
+                            }
+                        });
+                    }
                 } else {
-                    cb();
+                    if (deal.units > account.amount) {
+                        Object.assign(result, {success: false, errors: { account: 'Insufficient funds.'} });
+                        res.status(403).send(result);
+                    } else {
+                        account.amount -= deal.units;
+                        account.blocked += deal.units;
+                        account.save((err) => {
+                            if (err) {
+                                res.status(502).send(err);
+                            } else {
+                                cb();
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -85,50 +175,81 @@ router.post('/', (req, res) => {
                     side: sellSide,
                     status: openedStatus,
                     sellPrice: { $lte: deal.buyPrice },
-                }).sort({ sellPrice: 1 }).exec((err, deals) => {
-                    console.log(deals);
+                }).sort({sellPrice: 1}).exec((err, deals) => {
                     if (err) {
-                        res.send(err);
+                        res.status(502).send(err);
                     } else {
-                        let residue = deal.units - deal.granted;
                         let n = deals.length;
-                        let toUpdate = [];
-                        for (let i = 0; i < n; i++){
-                            let possible = Math.min(deals[i].units - deals[i].granted, residue);
-                            deals[i].granted += possible;
-                            deal.granted += possible;
-                            if (deals[i].granted == deals[i].units){
-                                deals[i].status = closedStatus;
-                                toUpdate.push(i);
-                            }
-                            if (deal.granted == deal.units) {
-                                deal.status = closedStatus;
-                                break;
-                            }
-                        }
+                        let checkDeal = (ind = 0) => {
+                            if (ind == n) {
+                                cb();
+                            } else {
+                                let residue = deal.units - deal.granted;
+                                let possible = Math.min(deals[ind].units - deals[ind].granted, residue);
 
-                        if (toUpdate.length){
-                            Promise.all(toUpdate.map(index => {
-                                return new Promise((resolve, reject) => {
-                                    deals[index].save((err) => {
-                                        if (err) reject(err);
-                                        resolve(index);
-                                    });
+                                deals[ind].granted += possible;
+                                deal.granted += possible;
+
+                                Account.findOne({
+                                    userId: deals[ind].sellerId,
+                                    currency: 'EUR'
+                                }, (err, account) => {
+                                    if (err) {
+                                        res.status(502).send(err);
+                                    } else {
+                                        account.blocked -= possible;
+                                        account.save((err) => {
+                                            if (err) {
+                                                res.status(502).send(err);
+                                            } else {
+                                                Account.findOne({
+                                                    userId: deals[ind].sellerId,
+                                                    currency: 'USD'
+                                                }, (err, account) => {
+                                                    if (err) {
+                                                        res.status(502).send(err);
+                                                    } else {
+                                                        account.amount += deals[ind].sellPrice * possible;
+                                                        amount += deals[ind].sellPrice * possible;
+                                                        account.save((err) => {
+                                                            if (err) {
+                                                                res.status(502).send(err);
+                                                            } else {
+                                                                if (deals[ind].granted == deals[ind].units){
+                                                                    deals[ind].status = closedStatus;
+                                                                    deals[ind].dateClosed = new Date();
+                                                                    deals[ind].save((err) => {
+                                                                        if (err) {
+                                                                            res.status(502).send(err);
+                                                                        } else {
+                                                                            if (deal.granted == deal.units) {
+                                                                                deal.status = closedStatus;
+                                                                                deal.dateClosed = new Date();
+                                                                                cb();
+                                                                            } else {
+                                                                                checkDeal(ind + 1);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                } else {
+                                                                    deal.status = closedStatus;
+                                                                    deal.dateClosed = new Date();
+                                                                    cb();
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
                                 });
-                            })).then(
-                                value => {
-                                    cb();
-                                },
-                                reason => {
-                                    res.send(reason);
-                                }
-                            );
-                        } else {
-                            cb();
-                        }
+                            }
+                        };
+                        checkDeal();
                     }
                 });
-                return;
+                break;
             case sellSide:
                 Deal.find({
                     side: buySide,
@@ -136,50 +257,81 @@ router.post('/', (req, res) => {
                     buyPrice: { $gte: deal.sellPrice }
                 }, (err, deals) => {
                     if (err) {
-                        res.send(err);
-                    } else{
-                        let residue = deal.units - deal.granted;
+                        res.status(502).send(err);
+                    } else {
                         let n = deals.length;
-                        let toUpdate = [];
-                        for (let i = 0; i < n; i++){
-                            let possible = Math.min(deals[i].units - deals[i].granted, residue);
-                            deals[i].granted += possible;
-                            deal.granted += possible;
-                            if (deals[i].granted == deals[i].units){
-                                deals[i].status = closedStatus;
-                                toUpdate.push(i);
-                            }
-                            if (deal.granted == deal.units) {
-                                deal.status = closedStatus;
-                                break;
-                            }
-                        }
+                        let checkDeal = (ind = 0) => {
+                            if (ind == n) {
+                                cb();
+                            } else {
+                                let residue = deal.units - deal.granted;
+                                let possible = Math.min(deals[ind].units - deals[ind].granted, residue);
 
-                        if (toUpdate.length){
-                            Promise.all(toUpdate.map(index => {
-                                return new Promise((resolve, reject) => {
-                                    deals[index].save((err) => {
-                                        if (err) reject(err);
-                                        resolve(index);
+                                deals[ind].granted += possible;
+                                deal.granted += possible;
+
+                                Account.findOne({
+                                    userId: deals[ind].buyerId,
+                                    currency: 'USD'
+                                }, (err, account) => {
+                                    account.blocked -= possible * deal.sellPrice;
+                                    let positiveDifference = possible * (deals[ind].buyPrice - deal.sellPrice);
+                                    account.blocked -= positiveDifference;
+                                    account.amount += positiveDifference;
+                                    account.save((err) => {
+                                        if (err) {
+                                            res.status(502).send(err);
+                                        } else {
+                                            Account.findOne({
+                                                userId: deals[ind].buyerId,
+                                                currency: 'EUR'
+                                            }, (err, account) => {
+                                                if (err) {
+                                                    res.status(502).send(err);
+                                                } else {
+                                                    account.amount += possible;
+                                                    amount += possible;
+                                                    account.save((err) => {
+                                                        if (err) {
+                                                            res.status(502).send(err);
+                                                        } else {
+                                                            if (deals[ind].granted == deals[ind].units){
+                                                                deals[ind].status = closedStatus;
+                                                                deals[ind].dateClosed = new Date();
+                                                                deals[ind].save((err) => {
+                                                                    if (err) {
+                                                                        res.status(502).send(err);
+                                                                    } else {
+                                                                        if (deal.granted == deal.units) {
+                                                                            deal.status = closedStatus;
+                                                                            deal.dateClosed = new Date();
+                                                                            cb();
+                                                                        } else {
+                                                                            checkDeal(ind + 1);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                deal.status = closedStatus;
+                                                                deal.dateClosed = new Date();
+                                                                cb();
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
                                     });
                                 });
-                            })).then(
-                                value => {
-                                    cb();
-                                },
-                                reason => {
-                                    res.send(reason);
-                                }
-                            );
-                        } else {
-                            cb();
-                        }
+                            }
+                        };
+                        checkDeal();
                     }
                 });
-                return;
+                break;
             default:
-                Object.assign(result.errors, { status: 'Invalid status value.' });
-                res.json(result);
+                Object.assign(result, { success: false, errors: { side: 'Invalid side value.' } });
+                res.status(403).send(result);
                 return;
         }
     };
@@ -187,69 +339,186 @@ router.post('/', (req, res) => {
     let saveDeal = () => {
         deal.save((err) => {
             if (err) {
-                Object.assign(result.errors, { save: err });
-                Object.assign(result, { success: false });
+                res.send(err);
             }
             else {
-                Object.assign(result, { message: 'Deal successfully opened.', deal: deal });
+                if (deal.side == buySide) {
+                    Account.findOne({
+                        userId: user._id,
+                        currency: 'EUR'
+                    }, (err, account) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            account.amount += deal.granted;
+                            account.save((err) => {
+                                if (err) {
+                                    res.status(502).send(err);
+                                } else {
+                                    Account.findOne({
+                                        userId: user._id,
+                                        currency: 'USD'
+                                    }, (err, account) => {
+                                        account.blocked -= amount;
+                                        account.save((err) => {
+                                            if (err) {
+                                                res.status(502).send(err);
+                                            } else {
+                                                res.status(200).json(deal);
+                                            }
+                                        })
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    Account.findOne({
+                        userId: user._id,
+                        currency: 'USD'
+                    }, (err, account) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            account.amount += deal.granted;
+                            account.save((err) => {
+                                if (err) {
+                                    res.status(502).send(err);
+                                } else {
+                                    Account.findOne({
+                                        userId: user._id,
+                                        currency: 'EUR'
+                                    }, (err, account) => {
+                                        account.blocked -= amount;
+                                        account.save((err) => {
+                                            if (err) {
+                                                res.status(502).send(err);
+                                            } else {
+                                                res.status(200).json(deal);
+                                            }
+                                        })
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
             }
-            res.json(result);
         });
     };
 
-    checkAccount(() => {
-        checkMarket(saveDeal);
-    });
+    if (!user){
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    } else {
+        Object.assign(deal, req.body);
+        Object.assign(deal, {dateOpened: new Date()});
+        Object.assign(deal, {granted: 0, status: openedStatus});
+
+        switch (deal.side){
+            case buySide:
+                Object.assign(deal, {buyerId: user._id});
+                break;
+            case sellSide:
+                Object.assign(deal, {sellerId: user._id});
+                break;
+            default:
+                Object.assign(result, {success: false, errors: {side: 'Invalid side value.'}});
+                res.status(403).send(result);
+                return;
+        }
+
+        checkAccount(() => {
+            checkMarket(() => {
+                saveDeal();
+            });
+        });
+    }
 });
 
 router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.findOne({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err, deal) => {
-        if (err) res.send(err);
-        res.json(deal);
-    });
+    if (user){
+        Deal.findById(req.params.id, (err, deal) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    res.status(200).send(deal);
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.findOne({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err, deal) => {
-        if (err) res.send(err);
-        Object.assign(deal, req.body);
+    if (user){
+        Deal.findById(req.params.id, (err, deal) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    Object.assign(deal, req.body);
+                    deal.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(deal);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
 
-        deal.save((err) => {
-            if (err) res.send(err);
-            res.json(deal);
+            }
         });
-    });
+    }
+    else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
+    }
 });
 
 router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
+    let result = defaultResult;
 
-    Deal.remove({
-        _id: req.params.id,
-        $or: [
-            { buyerId: user._id },
-            { sellerId: user._id }
-        ]
-    }, (err) => {
-        if (err) res.send(err);
-        res.json({ message: 'Deal successfully deleted.' });
-    })
+    if (user) {
+        Deal.findById(req.params.id, (err, deal) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                    Deal.remove({_id: req.params.id}, (err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(result);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
+
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 module.exports = router;
