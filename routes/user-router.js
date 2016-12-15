@@ -9,6 +9,48 @@ var User = require('../models/user');
 const defaultResult = {success: true, errors: {}};
 const defaultOptions = {limit: 15, page: 1};
 
+router.get('/me', (req, res) => {
+    const user = req.decoded._doc;
+    if (user) {
+        User.findById(used._id, (err, user) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(user);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
+router.put('/me', (req, res) => {
+    let user = req.decoded._doc;
+    let result = defaultResult;
+
+    if (user){
+        User.findById(user._id, (err, user) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(user, req.body);
+                user.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(user);
+                    }
+                });
+            }
+        });
+    }
+    else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
 router.get('/', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign(defaultOptions, req.body || {});
@@ -17,7 +59,7 @@ router.get('/', (req, res) => {
 
     let result = defaultResult;
 
-    if (user.role == 'admin'){
+    if (user.role == 'admin') {
         User.find(query).skip((page - 1) * limit).limit(limit).exec((err, users) => {
             if (err) {
                 res.status(502).send(err);
@@ -32,8 +74,19 @@ router.get('/', (req, res) => {
                 });
             }
         });
-    } else if (user.role == 'trader'){
-        User.findById(user._id, (err, user) => {
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
+router.post('/', (req, res) => {
+    const user = req.decoded._doc;
+
+    if (user.role == 'admin'){
+        let newUser = new User();
+        Object.assign(newUser, req.body);
+        User.save((err) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -50,7 +103,7 @@ router.get('/:id', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.role == 'admin' || (user.role == 'trader' && user._id == req.params.id)){
+    if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
             if (err) {
                 res.status(502).send(err);
@@ -68,7 +121,7 @@ router.put('/:id', (req, res) => {
     let user = req.decoded._doc;
     let result = defaultResult;
 
-    if (user.role == 'admin' || (user.role == 'trader' && user._id == req.params.id)){
+    if (user.role == 'admin'){
         User.findById(req.params.id, (err, user) => {
             if (err) {
                 res.status(502).send(err);

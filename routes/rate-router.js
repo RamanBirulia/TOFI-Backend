@@ -5,7 +5,8 @@ var express = require('express');
 var router = express.Router();
 
 var Rate = require('../models/rate');
-let defaultResult = {success: true, errors: {}};
+
+const defaultResult = {success: true, errors: {}};
 
 router.get('/', (req, res) => {
     let result = defaultResult;
