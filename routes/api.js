@@ -17,9 +17,6 @@ var User = require('../models/user');
 
 const defaultResult = {success: true, errors: {}};
 
-router.use('/rates', rateRouter);
-router.use('/instruments', instrumentRouter);
-
 router.post('/register', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
@@ -44,7 +41,6 @@ router.post('/register', (req, res) => {
             } else {
                 let user = new User();
                 Object.assign(user, req.body);
-                //Object.assign(user, {role:'trader'});
 
                 //TODO: hashing password here before save
                 user.save((err) => {
@@ -107,6 +103,8 @@ router.get('/', (req, res) => {
     res.status(200).send(req.decoded._doc);
 });
 
+router.use('/rates', rateRouter);
+router.use('/instruments', instrumentRouter);
 router.use('/users', userRouter);
 router.use('/deals', dealRouter);
 router.use('/accounts', accountRouter);
