@@ -44,7 +44,7 @@ router.post('/register', (req, res) => {
             } else {
                 let user = new User();
                 Object.assign(user, req.body);
-                Object.assign(user, {role:'trader'});
+                //Object.assign(user, {role:'trader'});
 
                 //TODO: hashing password here before save
                 user.save((err) => {
