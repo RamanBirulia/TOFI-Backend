@@ -18,7 +18,7 @@ const defaultOptions = {limit: 15, page: 1};
 
 router.get('/', (req, res) => {
     const user = req.decoded._doc;
-    const options = Object.assign(defaultOptions, req.body || {});
+    const options = Object.assign({}, defaultOptions, req.body || {});
     const { page, limit } = options;
     const query = {
         $or: [
@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
         ]
     };
 
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
@@ -52,7 +52,7 @@ router.get('/', (req, res) => {
 
 router.get('/opened', (req, res) => {
     const user = req.decoded._doc;
-    const options = Object.assign(defaultOptions, req.body || {});
+    const options = Object.assign({}, defaultOptions, req.body || {});
     const { page, limit } = options;
     const query = {
         $or: [
@@ -62,7 +62,7 @@ router.get('/opened', (req, res) => {
         status: openedStatus
     };
 
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
@@ -87,7 +87,7 @@ router.get('/opened', (req, res) => {
 
 router.get('/closed', (req, res) => {
     const user = req.decoded._doc;
-    const options = Object.assign(defaultOptions, req.body || {});
+    const options = Object.assign({}, defaultOptions, req.body || {});
     const { page, limit } = options;
     const query = {
         $or: [
@@ -97,7 +97,7 @@ router.get('/closed', (req, res) => {
         status: closedStatus
     };
 
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Deal.find(query).skip((page - 1) * limit).limit(limit).exec((err, deals) => {
@@ -437,8 +437,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    let user = req.decoded._doc;
-    let result = defaultResult;
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
@@ -460,8 +460,8 @@ router.get('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    let user = req.decoded._doc;
-    let result = defaultResult;
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user){
         Deal.findById(req.params.id, (err, deal) => {
@@ -492,8 +492,8 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-    let user = req.decoded._doc;
-    let result = defaultResult;
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
         Deal.findById(req.params.id, (err, deal) => {

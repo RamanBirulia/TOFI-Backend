@@ -9,7 +9,7 @@ var Rate = require('../models/rate');
 const defaultResult = {success: true, errors: {}};
 
 router.get('/', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
     Rate.find().sort({date: -1}).exec((err, rates) => {
         if (err) {
             res.status(502).send(err);
@@ -21,11 +21,11 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    let result = Object.assign({}, {}, defaultResult);
     let rate = new Rate();
     Object.assign(rate, req.body);
-    let result = defaultResult;
 
-    rate.save((err) =>{
+    rate.save((err) => {
         if (err) {
             res.status(502).send(err);
         } else {
@@ -35,8 +35,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:count', (req, res) => {
-    let result = defaultResult;
-    Rate.find().sort({date: -1}).limit(+req.params.count).exec((err, rates) => {
+    let result = Object.assign({}, {}, defaultResult);
+    Rate.find().sort({date: -1}).limit(parseInt(req.params.count)).exec((err, rates) => {
         if (err) {
             res.status(502).send(err);
         } else {

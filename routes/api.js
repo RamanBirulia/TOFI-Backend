@@ -15,39 +15,38 @@ var instrumentRouter = require('./instrument-router');
 
 var User = require('../models/user');
 
-let defaultResult = {success: true, errors: {}};
+const defaultResult = {success: true, errors: {}};
 
 router.use('/rates', rateRouter);
 router.use('/instruments', instrumentRouter);
 
 router.post('/register', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
-    User.find({
-        $or: [
-            { login: req.body.login },
-            { email: req.body.email }
-        ]
-    }, (err, users) => {
+    User.find({$or: [{login: req.body.login}, {email: req.body.email}]}, (err, users) => {
         if (err) {
             res.status(502).send(err);
         } else {
+            let errors = {};
+
             users.forEach((user) => {
                 result.success &= !(user.login == req.body.login || user.email == req.body.email);
                 if (user.login == req.body.login)
-                    Object.assign(result.errors, { login: 'Registration failed. Login is already used.'});
+                    Object.assign(errors, {login: 'Registration failed. Login is already used.'});
                 if (user.email == req.body.email)
-                    Object.assign(result.errors, { email: 'Registration failed. E-mail is already used.'});
+                    Object.assign(errors, {email: 'Registration failed. E-mail is already used.'});
             });
+
+            Object.assign(result, {errors: errors});
 
             if (!result.success) {
                 res.status(401).send(result);
             } else {
                 let user = new User();
                 Object.assign(user, req.body);
-                user.role = 'trader';
+                Object.assign(user, {role:'trader'});
 
-                // TODO: hashing password here before save
+                //TODO: hashing password here before save
                 user.save((err) => {
                     if (err) {
                         res.status(502).send(err);
@@ -61,11 +60,9 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/authenticate', (req, res) => {
-    let result = defaultResult;
+    let result = Object.assign({}, {}, defaultResult);
 
-    User.findOne({
-        login: req.body.login
-    }, (err, user) => {
+    User.findOne({login: req.body.login}, (err, user) => {
         if (err) {
             res.status(502).send(err);
         } else {
@@ -77,7 +74,7 @@ router.post('/authenticate', (req, res) => {
                     Object.assign(result, {success: false, errors: {password: 'Authentication failed. Wrong password.'}});
                     res.status(401).send(result);
                 } else {
-                    var token = jwt.sign(user, config.get('magicSecret'), {expiresIn: '1440m'});
+                    let token = jwt.sign(user, config.get('magicSecret'), {expiresIn: '1440m'});
                     Object.assign(result, {token: token});
                     res.status(200).send(result);
                 }
@@ -87,13 +84,13 @@ router.post('/authenticate', (req, res) => {
 });
 
 router.use((req, res, next) => {
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
-    let result = defaultResult;
+    let token = req.body.token || req.query.token || req.headers['x-access-token'];
+    let result = Object.assign({}, {}, defaultResult);
 
     if (token) {
         jwt.verify(token, config.get('magicSecret'), (err, decoded) => {
             if (err) {
-                Object.assign(result, {success: false, errors: {verification: 'Failed to authenticate token.' }});
+                Object.assign(result, {success: false, errors: {verification: 'Failed to authenticate token.'}});
                 res.status(401).send(result);
             } else {
                 req.decoded = decoded;
@@ -101,7 +98,7 @@ router.use((req, res, next) => {
             }
         });
     } else {
-        Object.assign(result, {success: false, erros: {verification: 'No token provided.'}});
+        Object.assign(result, {success: false, errors: {verification: 'No token provided.'}});
         res.status(403).send(result);
     }
 });
