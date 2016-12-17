@@ -4,11 +4,10 @@
 var request = require('request');
 
 let count = 0;
-let delay = ((+process.argv[2] + 2) * 100 + 50) * 24;
+let delay = (+process.argv[2] + 2) * 100 + 50;
 
 process.on('SIGHUP', (err, res) => {
-    console.log('Edward #%d Got SIGHUP', +process.argv[2]);
-    delay += 75;
+    console.log('Edward got SIGHUP');
 });
 
 class EdwardBot{
@@ -18,15 +17,13 @@ class EdwardBot{
     }
 
     onStart(){
-        this.authentificate(() => {
-            console.log(this.token);
+        this.authenticate(() => {
             let controlMarket = () => {
-
-                let date = new Date();
-                date.setMilliseconds(date.getMilliseconds() - delay);
-                this.getDeals(date, (deals) => {
+                let dateFrom = new Date('2016-11-06T00:00:00.000Z');
+                let dateTill = new Date('2016-11-06T00:00:00.000Z');
+                this.getRates((deals) => {
                     console.log(deals);
-                });
+                }, dateFrom, dateTill);
             };
             controlMarket();
         });
@@ -40,7 +37,7 @@ class EdwardBot{
         return result.sum / result.units;
     }
 
-    authentificate(cb){
+    authenticate(cb){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/authenticate',
@@ -58,13 +55,35 @@ class EdwardBot{
         })
     }
 
-    getDeals(date, cb){
+    getDeals(cb, dateFrom, dateTill){
+        let options = { dateFrom, dateTill };
+
         request({
             method:'GET',
             url: 'http://localhost:3000/api/deals',
-            form:{
-                date: date
+            form: options,
+            headers: {
+                'x-access-token': this.token
             },
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            console.log(response);
+            if (response.success){
+                cb(response.results);
+            } else {
+                cb([]);
+            }
+        });
+    }
+
+    getRates(cb, dateFrom, dateTill){
+        let options = { dateFrom, dateTill };
+
+        request({
+            method:'GET',
+            url: 'http://localhost:3000/api/rates',
+            form: options,
             headers: {
                 'x-access-token': this.token
             },

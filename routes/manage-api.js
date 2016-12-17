@@ -166,30 +166,31 @@ router.get('/setup-deals', (req, res) => {
 
 router.get('/setup-variables', (req, res) => {
     let params = [
-        ['interval', '1000'],
+        ['deal-interval', '1000'],
+        ['rate-interval', '10000'],
         ['path', 'maybe-once-but-not-now']
     ];
-
-    Promise.all(params.map(param => {
-        return new Promise((resolve, reject) => {
-            let variable = new Variable();
-            Object.assign(variable, { key: param[0], value: param[1]});
-            variable.save((err) => {
-                if (err) reject(variable);
-                else resolve(variable);
+    Variable.remove({}, (err) => {
+        Promise.all(params.map(param => {
+            return new Promise((resolve, reject) => {
+                let variable = new Variable();
+                Object.assign(variable, { key: param[0], value: param[1]});
+                variable.save((err) => {
+                    if (err) reject(variable);
+                    else resolve(variable);
+                })
             })
-        })
-    })).then(
-        value => {
-            console.log('Variables loaded.');
-            res.status(200).send({success:true});
-        },
-        reason => {
-            console.log('Errors during variables setup.');
-            res.status(502).send({success:false});
-        }
-    )
-
+        })).then(
+            value => {
+                console.log('Variables loaded.');
+                res.status(200).send({success:true});
+            },
+            reason => {
+                console.log('Errors during variables setup.');
+                res.status(502).send({success:false});
+            }
+        )
+    });
 });
 
 module.exports = router;

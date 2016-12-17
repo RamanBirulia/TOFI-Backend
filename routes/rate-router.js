@@ -16,10 +16,13 @@ router.get('/', (req, res) => {
     const { limit, dateFrom, dateTill } = options;
 
     const query = { dateFrom, dateTill };
-    query.dateFrom = dateFrom ? {$gte: dateFrom} : undefined;
-    query.dateTill = dateTill ? {$lte: dateTill} : undefined;
-    if (!query.dateFrom) delete query.dateFrom;
-    if (!query.dateTill) delete query.dateTill;
+    query.$and = [];
+    if (dateFrom) query.$and.push({date: {$gte: dateFrom}});
+    if (dateTill) query.$and.push({date: {$lte: dateTill}});
+    delete query.dateFrom;
+    delete query.dateTill;
+
+    console.log(query);
 
     if (query.dateFrom || query.dateTill){
         Rate.find(query).sort({date:-1}).limit(limit).exec((err, rates) => {

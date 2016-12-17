@@ -89,7 +89,7 @@ router.post('/', (req, res) => {
     if (user.role == 'admin'){
         let newUser = new User();
         Object.assign(newUser, req.body);
-        User.save((err) => {
+        newUser.save((err) => {
             if (err) {
                 res.status(502).send(err);
             } else {
