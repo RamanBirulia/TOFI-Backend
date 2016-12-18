@@ -7,13 +7,17 @@ var router = express.Router();
 var Account = require('../models/account');
 
 const defaultResult = {success: true, errors: {}};
+const defaultOptions = {limit: 15, page: 1};
 
 router.get('/', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
 
-    if (user) {
-        Account.find({userId: user._id}, (err, accounts) => {
+    const options = Object.assign({}, req.body || {}, defaultOptions);
+    const { page, limit } = options;
+
+    if (user.role == 'admin') {
+        Account.find().skip((page - 1) * limit).limit(limit).exec((err, accounts) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -50,19 +54,19 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
 
-    if (user) {
+    if (user.admin == 'admin') {
         Account.findById(req.params.id, (err, account) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (user._id != account.userId){
-                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
-                    res.status(401).send(result);
-                } else {
+                if (account){
                     res.status(200).send(account);
+                } else {
+                    Object.assign(result, {success: false, errors: {account: 'Account not found.'}});
+                    res.status(401).send(result);
                 }
             }
         });
@@ -73,18 +77,15 @@ router.get('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    let user = req.decoded._doc;
+    const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
 
-    if (user) {
+    if (user.admin == 'admin') {
         Account.findById(req.params.id, (err, account) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (user._id != account.userId){
-                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
-                    res.status(401).send(result);
-                } else {
+                if (account){
                     account.amount += req.body.amount;
                     account.save((err) => {
                         if (err) {
@@ -93,6 +94,9 @@ router.put('/:id', (req, res) => {
                             res.status(200).send(account);
                         }
                     });
+                } else {
+                    Object.assign(result, {success: false, errors: {account: 'Account not found.'}});
+                    res.status(401).send(result);
                 }
             }
         });
@@ -103,6 +107,21 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
+
+    if (user.admin == 'admin') {
+        Account.removeById(req.params.id, (err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(result);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
     res.status(200).send('Keep calm and wait for it.');
 });
 

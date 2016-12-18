@@ -29,7 +29,7 @@ router.get('/me', (req, res) => {
 
 router.put('/me', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
-    let user = req.decoded._doc;
+    let user = Object.assign({}, {}, req.decoded._doc);
 
     if (user){
         User.findById(user._id, (err, user) => {
@@ -56,8 +56,8 @@ router.put('/me', (req, res) => {
 router.get('/', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
-    const user = req.decoded._doc;
-    const options = Object.assign(defaultOptions, req.body || {});
+    const user = Object.assign({}, {}, req.decoded._doc);
+    const options = Object.assign({}, defaultOptions, req.body || {});
     const { limit, page } = options;
     const query = {};
 
@@ -89,7 +89,7 @@ router.post('/', (req, res) => {
     if (user.role == 'admin'){
         let newUser = new User();
         Object.assign(newUser, req.body);
-        User.save((err) => {
+        newUser.save((err) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -111,7 +111,12 @@ router.get('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(user);
+                if (user){
+                    res.status(200).send(user);
+                } else {
+                    Object.assign(result, {success: false, errors:{user: 'User not found.'}});
+                    res.status(403).send(result);
+                }
             }
         });
     } else {
@@ -129,14 +134,20 @@ router.put('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(user, req.body);
-                user.save((err) => {
-                    if (err) {
-                        res.status(502).send(err);
-                    } else {
-                        res.status(200).send(user);
-                    }
-                });
+                if (user){
+                    Object.assign(user, req.body);
+                    user.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(user);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors:{user: 'User not found.'}});
+                    res.status(403).send(result);
+                }
+
             }
         });
     }
@@ -155,7 +166,7 @@ router.delete('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(result);
+                Object.assign(result);
             }
         });
     }

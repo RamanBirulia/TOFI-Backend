@@ -27,7 +27,7 @@ class FrankBot{
 
     onStart(){
         console.log('Hello, I am Frank #' + +process.argv[2]);
-        this.authentificate(() => {
+        this.authenticate(() => {
             if (this.token){
                 console.log(this.token);
                 let makeDeal = () => {
@@ -73,7 +73,7 @@ class FrankBot{
         return result.sum / result.count;
     }
 
-    authentificate(cb){
+    authenticate(cb){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/authenticate',

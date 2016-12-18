@@ -20,38 +20,24 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
-    let instrument = new Instrument();
-    Object.assign(instrument, req.body);
 
-    instrument.save((err) => {
-        if (err) {
-            res.status(502).send(err);
-        } else {
-            res.status(200).send(instrument);
-        }
-    });
-});
+    if (user.role == 'admin'){
+        let instrument = new Instrument();
+        Object.assign(instrument, req.body);
 
-router.get('/:id', (req, res) => {
-    Instrument.findOne({_id: req.params.id}, (err, instrument) => {
-        if (err){
-            res.status(502).send(err);
-        } else {
-            res.status(200).send(instrument);
-        }
-    });
-});
-
-router.delete('/:id', (req, res) => {
-    let result = Object.assign({}, {}, defaultResult);
-    Instrument.remove({ _id: req.params.id }, (err) => {
-        if (err) {
-            res.status(502).send(err);
-        } else {
-            res.status(200).send(result);
-        }
-    })
+        instrument.save((err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(instrument);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
 });
 
 module.exports = router;

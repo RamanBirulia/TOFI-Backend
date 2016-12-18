@@ -42,5 +42,14 @@ let testRequestToLocalhost = () => {
     })
 };
 
+let swapLines = () => {
+    let lines = fs.readFileSync('./initials/rates', 'utf-8').split('\n');
+    for (let i = 1; i < lines.length / 2; i++){
+        lines[i] = [lines[lines.length - i], lines[lines.length - i] = lines[i]][0];
+    }
+    fs.writeFileSync('./initials/rates', lines.join('\n'), 'utf-8');
+};
+
 //testRequestToLocalhost();
 //testRequestToLocalhost();
+//swapLines();
