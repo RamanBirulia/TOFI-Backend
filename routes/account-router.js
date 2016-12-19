@@ -135,7 +135,7 @@ router.put('/:id', (req, res) => {
                 res.status(502).send(err);
             } else {
                 if (account){
-                    account.amount += req.body.amount;
+                    account.amount += +req.body.amount;
                     account.save((err) => {
                         if (err) {
                             res.status(502).send(err);

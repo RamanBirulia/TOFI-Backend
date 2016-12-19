@@ -7,7 +7,9 @@ var Schema = mongoose.Schema;
 var RateSchema = new Schema({
     instrument: String,
     rate: Number,
-    date: Date
+    date: Date,
+    min: Number,
+    max: Number
 });
 
 module.exports = mongoose.model('Rate', RateSchema);

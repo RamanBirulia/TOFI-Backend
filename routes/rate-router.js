@@ -13,10 +13,9 @@ router.get('/', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { limit, dateFrom, dateTill } = options;
+    const {limit, dateFrom, dateTill} = options;
 
-    const query = { dateFrom, dateTill };
-    query.$and = [];
+    let query = {dateFrom, dateTill, $and: []};
     if (dateFrom) query.$and.push({date: {$gte: dateFrom}});
     if (dateTill) query.$and.push({date: {$lte: dateTill}});
     delete query.dateFrom;
@@ -41,7 +40,16 @@ router.get('/', (req, res) => {
             }
         });
     }
+});
 
+router.get('/last', (req, res) => {
+    Rate.findOne().sort({date: -1}).exec((err, rate) => {
+        if (err) {
+            res.status(502).send(err);
+        } else {
+            res.status(200).send(rate);
+        }
+    });
 });
 
 router.post('/', (req, res) => {
@@ -63,17 +71,6 @@ router.post('/', (req, res) => {
         Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
     }
-
-});
-
-router.get('/last', (req, res) => {
-    Rate.findOne().sort({date: -1}).exec((err, rate) => {
-        if (err) {
-            res.status(502).send(err);
-        } else {
-            res.status(200).send(rate);
-        }
-    });
 });
 
 module.exports = router;
