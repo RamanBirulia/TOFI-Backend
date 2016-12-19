@@ -1,10 +1,10 @@
 /**
  * Created by wanfranck on 01.12.16.
  */
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var Instrument = require('../models/instrument');
+let Instrument = require('../models/instrument');
 const defaultResult = {success: true, errors:{}};
 
 router.get('/', (req, res) => {

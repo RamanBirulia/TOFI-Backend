@@ -66,7 +66,7 @@ router.put('/my/:id', (req, res) => {
                 res.status(502).send(err);
             } else {
                 if (account.userId == user._id){
-                    account.amount += req.body.amount;
+                    account.amount += +req.body.amount;
                     account.save((err) => {
                         if (err) {
                             res.status(502).send(err);
