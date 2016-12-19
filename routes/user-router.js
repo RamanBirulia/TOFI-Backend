@@ -1,10 +1,10 @@
 /**
  * Created by wanfranck on 01.12.16.
  */
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var User = require('../models/user');
+let User = require('../models/user');
 
 const defaultResult = {success: true, errors: {}};
 const defaultOptions = {limit: 15, page: 1};
@@ -62,7 +62,7 @@ router.get('/', (req, res) => {
     const query = {};
 
     if (user.role == 'admin') {
-        User.find(query).skip((page - 1) * limit).limit(limit).exec((err, users) => {
+        User.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, users) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -162,7 +162,7 @@ router.delete('/:id', (req, res) => {
     let user = req.decoded._doc;
 
     if (user.role == 'admin'){
-        User.removeById(req.params.id, (err) => {
+        User.findByIdAndRemove(req.params.id, (err) => {
             if (err) {
                 res.status(502).send(err);
             } else {

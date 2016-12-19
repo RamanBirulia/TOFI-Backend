@@ -1,17 +1,13 @@
 /**
  * Created by wanfranck on 17.12.16.
  */
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var Bot = require('../models/bot');
-
-const defaultResult = {success: true, errors: {}};
+let Bot = require('../models/bot');
 
 router.post('/', (req, res) => {
-    const result = defaultResult;
-
-    Bot.find({botId: req.body.botId}, (err, bot) => {
+    Bot.findOne({botId: req.body.botId}, (err, bot) => {
         if (err) {
             res.status(502).send(err);
         } else {
@@ -21,7 +17,7 @@ router.post('/', (req, res) => {
                     if (err) {
                         res.status(502).send(err);
                     } else {
-                        res.status(200).send(result);
+                        res.status(200).send(bot);
                     }
                 });
             } else {
@@ -31,11 +27,12 @@ router.post('/', (req, res) => {
                     if (err) {
                         res.status(502).send(err);
                     } else {
-                        res.status(200).send(result);
+                        res.status(200).send(bot);
                     }
                 });
             }
         }
-
     });
 });
+
+module.exports = router;

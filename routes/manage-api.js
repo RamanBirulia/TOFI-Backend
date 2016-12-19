@@ -1,18 +1,19 @@
 /**
  * Created by wanfranck on 04.12.16.
  */
-var fs = require('fs');
-var parseSync = require('csv-parse/lib/sync');
+let fs = require('fs');
+let parseSync = require('csv-parse/lib/sync');
 
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var User = require('../models/user');
-var Rate = require('../models/rate');
-var Instrument = require('../models/instrument');
-var Deal = require('../models/deal');
-var Account = require('../models/account');
-var Variable = require('../models/variable');
+let User = require('../models/user');
+let Rate = require('../models/rate');
+let Instrument = require('../models/instrument');
+let Deal = require('../models/deal');
+let Account = require('../models/account');
+let Variable = require('../models/variable');
+let Bot = require('../models/bot');
 
 router.get('/', (req, res) => {
     res.json({message: 'Welcome to the coolest managing API on earth.'});
@@ -66,36 +67,49 @@ router.get('/setup-users', (req, res) => {
         });
     };
 
-    User.remove({}, (err) => {
+    Bot.remove({}, (err) => {
         if (err) {
             res.status(502).send(err);
         } else {
-            Promise.all(users.map(user => {
-                return new Promise((resolve, reject) => {
-                    user.save((err) => {
+            Account.remove({}, (err) => {
+                if (err) {
+                    err.status(502).send(err);
+                } else {
+                    User.remove({}, (err) => {
                         if (err) {
-                            reject(user);
+                            res.status(502).send(err);
                         } else {
-                            if (user.role == 'admin'){
-                                resolve(user);
-                            } else {
-                                createAccounts(user, 1000, 1000, resolve);
-                            }
+                            Promise.all(users.map(user => {
+                                return new Promise((resolve, reject) => {
+                                    user.save((err) => {
+                                        if (err) {
+                                            reject(user);
+                                        } else {
+                                            if (user.role == 'admin'){
+                                                resolve(user);
+                                            } else {
+                                                createAccounts(user, 1000, 1000, resolve);
+                                            }
+                                        }
+                                    });
+                                });
+                            })).then(
+                                value => {
+                                    console.log('Users loaded.');
+                                    res.status(200).send({success: true});
+                                },
+                                reason => {
+                                    console.log('Errors during users setup.');
+                                    res.status(502).send({success: false});
+                                }
+                            )
                         }
                     });
-                });
-            })).then(
-                value => {
-                    console.log('Users loaded.');
-                    res.status(200).send({success: true});
-                },
-                reason => {
-                    console.log('Errors during users setup.');
-                    res.status(502).send({success: false});
                 }
-            )
+            });
         }
     });
+
 });
 
 router.get('/setup-rates', (req, res) => {

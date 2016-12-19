@@ -3,12 +3,12 @@
 /**
  * Module dependencies.
  */
-var app = require('../app');
-var debug = require('debug')('trading-platform:server');
-var http = require('http');
-var spawn = require('child_process').spawn;
+let app = require('../app');
+let debug = require('debug')('trading-platform:server');
+let http = require('http');
+let spawn = require('child_process').spawn;
 
-var config = require('../config/index');
+let config = require('../config/index');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -70,13 +70,13 @@ function onListening() {
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(config.get('port') || process.env.PORT || '3000');
+let port = normalizePort(config.get('port') || process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
-var server = http.createServer(app);
+let server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -85,7 +85,9 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+/*
 let botSpawner = spawn('node', ['bots/bot-spawner.js']);
 botSpawner.on('exit', () => console.log('Bot spawner exited ' + botSpawner.pid));
 botSpawner.stdout.on('data', (data) => console.log('' + data));
 botSpawner.stderr.on('data', (data) => console.log('' + data));
+*/

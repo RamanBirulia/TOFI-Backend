@@ -1,15 +1,10 @@
 /**
  * Created by wanfranck on 08.12.16.
  */
-var request = require('request');
+let request = require('request');
 
-let count = 0;
-let delay = (+process.argv[2] + 2) * 100 + 50;
-
-process.on('SIGHUP', (err, res) => {
-    console.log('Frank #%d Got SIGHUP', +process.argv[2]);
-    delay += 75;
-});
+let name = 'Frank', surname = 'Cowperwood';
+let login = name + process.argv[2], password = surname + process.argv[2];
 
 let buySide = 'BUY';
 let sellSide = 'SELL';
@@ -20,24 +15,28 @@ let randomInteger = (min, max) => {
 };
 
 class FrankBot{
-    constructor(login, password){
+    constructor(login, password, name, surname){
         this.login = login;
         this.password = password;
+        this.name = name;
+        this.surname = surname;
+        this.email = this.name.toLowerCase() + '.' + this.surname.toLowerCase() + process.argv[2] + '@bot.org';
     }
 
     onStart(){
-        console.log('Hello, I am Frank #' + +process.argv[2]);
-        this.authenticate(() => {
-            if (this.token){
-                console.log(this.token);
-                let makeDeal = () => {
-                    setTimeout(() => {
-                        this.getAccounts(() => {
-                            console.log(this.accounts);
+        let authenticate = () => {
+            this.authenticate(
+                () => {
+                    console.log('Authentication succeed');
+                    this.sendPid(() => console.log('PID sent'));
+                    this.getDelay(() => console.log('Got delay'));
+
+                    let makeDeal = () => {
+                        setTimeout(() => {
                             let interval = randomInteger(5, 35);
+                            console.log('Interval', interval);
                             this.getRates(interval, (rates) => {
-                                console.log(rates.length);
-                                console.log(FrankBot.calcMovingAverage(rates));
+                                console.log('Rates', rates.length);
                                 let rate = FrankBot.calcMovingAverage(rates);
                                 let side = randomInteger(0, 1) == 1 ? buySide : sellSide;
                                 if (side == buySide){
@@ -49,19 +48,34 @@ class FrankBot{
                                     let units = randomInteger(50, 100);
                                     this.postDeal(side, units, rate, makeDeal);
                                 } else {
-                                    console.log("Hm, It's pretty defficult to make a decision.");
+                                    console.log("Hm, It's pretty difficult to make a decision.");
                                 }
                             });
-                        })
-                    }, delay);
-                };
+                        }, this.delay);
+                    };
 
-                makeDeal();
-            }
-            else {
-                console.log('Hm, no token, I can not trade.');
-            }
-        });
+                    this.getAccounts(() => {
+                        console.log(this.accounts);
+                        if (this.accounts.length == 0){
+                            let createAccounts = () => {
+                                this.createAccount('USD', 1010);
+                                this.createAccount('EUR', 980);
+                            };
+                            createAccounts();
+                        } else {
+                            console.log('All right, Now I can trade');
+                        }
+                        makeDeal();
+                    });
+                },
+                () => {
+                    console.log('Ooops, authentication failed, need to register first');
+                    this.register(authenticate);
+                }
+            );
+        };
+
+        authenticate();
     }
 
     static calcMovingAverage(rates){
@@ -73,7 +87,57 @@ class FrankBot{
         return result.sum / result.count;
     }
 
-    authenticate(cb){
+    getDelay(cb){
+        request({
+            method:'GET',
+            url: 'http://localhost:3000/api/variables/deal-interval'
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response._id) {
+                this.delay = +response.value;
+                cb();
+            }
+        });
+    }
+
+    sendPid(cb){
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/bots',
+            form: {
+                botId: this.login,
+                pid: process.pid
+            }
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            console.log(response.botId, 'now has pid', response.pid);
+            if (response._id) cb();
+        });
+    }
+
+    register(cb){
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/register',
+            form: {
+                login: this.login,
+                password: this.password,
+                name: this.name,
+                surname: this.surname,
+                email: this.email,
+                role: 'trader'
+            }
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response._id) cb();
+
+        });
+    }
+
+    authenticate(resolve, reject){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/authenticate',
@@ -86,9 +150,11 @@ class FrankBot{
             let response = JSON.parse(res.body);
             if (response.success){
                 this.token = response.token;
+                resolve();
+            } else {
+                reject();
             }
-            cb();
-        })
+        });
     }
 
     getAccounts(cb){
@@ -97,7 +163,7 @@ class FrankBot{
             headers: {
                 'x-access-token': this.token
             },
-            url: 'http://localhost:3000/api/accounts'
+            url: 'http://localhost:3000/api/accounts/my'
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
@@ -111,7 +177,10 @@ class FrankBot{
     getRates(interval, cb){
         request({
             method:'GET',
-            url: 'http://localhost:3000/api/rates/' + interval
+            url: 'http://localhost:3000/api/rates/',
+            form: {
+                limit: interval
+            }
         }, (err, res) => {
            if (err) throw err;
             let response = JSON.parse(res.body);
@@ -119,6 +188,21 @@ class FrankBot{
                 cb(response.results);
             } else {
                 cb([]);
+            }
+        });
+    }
+
+    getLastRate(cb){
+        request({
+            method:'GET',
+            url: 'http://localhost:3000/api/rates/last'
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response.success){
+                cb(response.results);
+            } else {
+                cb({});
             }
         });
     }
@@ -147,6 +231,24 @@ class FrankBot{
         })
     }
 
+    createAccount(currency, amount){
+        request({
+            url: 'http://localhost:3000/api/accounts/',
+            method: 'POST',
+            form: {
+                amount: amount,
+                currency: currency
+            },
+            headers: {
+                'x-access-token': this.token
+            }
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            console.log(response);
+        });
+    }
+
     addFunds(currency, amount){
         for (let i = 0; i < this.accounts.length; i++){
             let account = this.accounts[i];
@@ -168,5 +270,10 @@ class FrankBot{
     }
 }
 
-let frank = new FrankBot('Vlad.Isenbaev', 'password');
+let frank = new FrankBot(login, password, name, surname);
 frank.onStart();
+
+process.on('SIGHUP', (err, res) => {
+    console.log('Frank got SIGHUP');
+    frank.getDelay(() => {});
+});

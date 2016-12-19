@@ -1,21 +1,28 @@
 /**
  * Created by wanfranck on 21.11.16.
  */
-var jwt = require('jsonwebtoken');
-var config = require('../config/index');
+let jwt = require('jsonwebtoken');
+let config = require('../config/index');
 
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var userRouter = require('./user-router');
-var dealRouter = require('./deal-router');
-var rateRouter = require('./rate-router');
-var accountRouter = require('./account-router');
-var instrumentRouter = require('./instrument-router');
+let userRouter = require('./user-router');
+let dealRouter = require('./deal-router');
+let rateRouter = require('./rate-router');
+let accountRouter = require('./account-router');
+let instrumentRouter = require('./instrument-router');
+let botRouter = require('./bot-router');
+let variableRouter = require('./variable-router');
 
-var User = require('../models/user');
+let User = require('../models/user');
 
 const defaultResult = {success: true, errors: {}};
+
+router.use('/bots', botRouter);
+router.use('/rates', rateRouter);
+router.use('/instruments', instrumentRouter);
+router.use('/variables', variableRouter);
 
 router.post('/register', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
@@ -29,9 +36,9 @@ router.post('/register', (req, res) => {
             users.forEach((user) => {
                 result.success &= !(user.login == req.body.login || user.email == req.body.email);
                 if (user.login == req.body.login)
-                    Object.assign(errors, {login: 'Registration failed. Login is already used.'});
+                    Object.assign(errors, {login: 'Login is already used.'});
                 if (user.email == req.body.email)
-                    Object.assign(errors, {email: 'Registration failed. E-mail is already used.'});
+                    Object.assign(errors, {email: 'E-mail is already used.'});
             });
 
             Object.assign(result, {errors: errors});
@@ -63,11 +70,11 @@ router.post('/authenticate', (req, res) => {
             res.status(502).send(err);
         } else {
             if (!user) {
-                Object.assign(result, {success: false, errors: {user: 'Authentication failed. User not found.'}});
+                Object.assign(result, {success: false, errors: {user: 'User not found.'}});
                 res.status(401).send(result);
             } else {
                 if (user.password != req.body.password) {
-                    Object.assign(result, {success: false, errors: {password: 'Authentication failed. Wrong password.'}});
+                    Object.assign(result, {success: false, errors: {password: 'Wrong password.'}});
                     res.status(401).send(result);
                 } else {
                     let token = jwt.sign(user, config.get('magicSecret'), {expiresIn: '1440m'});
@@ -103,8 +110,6 @@ router.get('/', (req, res) => {
     res.status(200).send(req.decoded._doc);
 });
 
-router.use('/rates', rateRouter);
-router.use('/instruments', instrumentRouter);
 router.use('/users', userRouter);
 router.use('/deals', dealRouter);
 router.use('/accounts', accountRouter);
