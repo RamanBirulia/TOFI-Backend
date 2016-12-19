@@ -28,6 +28,34 @@ router.get('/my', (req, res) => {
     }
 });
 
+router.post('/my', (req, res) => {
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
+
+    if (user) {
+        let accountUSD = new Account();
+        Object.assign(accountUSD, {userId: user._id, amount: 0, blocked: 0, currency: 'USD'});
+        accountUSD.save((err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                let accountEUR = new Account();
+                Object.assign(accountEUR, {userId: user._id, amount: 0, blocked: 0, currency: 'EUR'});
+                accountEUR.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send([accountUSD, accountEUR]);
+                    }
+                });
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
 router.put('/my/:id', (req, res) => {
     const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
@@ -37,7 +65,7 @@ router.put('/my/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (account){
+                if (account.userId == user._id){
                     account.amount += req.body.amount;
                     account.save((err) => {
                         if (err) {
@@ -58,13 +86,41 @@ router.put('/my/:id', (req, res) => {
     }
 });
 
+router.delete('/my/:id', (req, res) => {
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
+
+    if (user) {
+        Account.findById(req.params.id, (err, account) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                if (account.userId == user._id){
+                    Account.findByIdAndRemove(req.params.id, (err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            Object.assign(result);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+                    res.status(401).send(result);
+                }
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
+        res.status(401).send(result);
+    }
+});
+
 router.post('/', (req, res) => {
     let user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
 
-    if (user) {
+    if (user.role == 'admin') {
         let account = new Account();
-        Object.assign(account, {userId: user._id, blocked: 0});
         Object.assign(account, req.body);
 
         account.save((err) => {
@@ -160,7 +216,7 @@ router.delete('/:id', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
     if (user.admin == 'admin') {
-        Account.removeById(req.params.id, (err) => {
+        Account.findByIdAndRemove(req.params.id, (err) => {
             if (err) {
                 res.status(502).send(err);
             } else {
