@@ -20,31 +20,42 @@ const defaultOptions = {limit: 15, page: 1};
 router.get('/my', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit } = options;
-    const query = {
-        $or: [
-            {buyerId: user._id},
-            {sellerId: user._id}
-        ]
-    };
+    const { page, limit, dateTill, dateFrom } = options;
+
+    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}]};
+    if (dateFrom) {
+        query.$and.push({dateClosed: {$gte: dateFrom}});
+        query.$and.push({dateOpened: {$gte: dateFrom}});
+    }
+    if (dateTill){
+        query.$and.push({dateClosed: {$lte: dateTill}});
+        query.$and.push({dateOpened: {$lte: dateTill}});
+    }
+    delete query.dateFrom;
+    delete query.dateTill;
 
     let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
-        Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
-            if (err) {
-                res.status(502).send(err);
-            } else {
-                Deal.count(query, (err, count) => {
-                   if (err) {
-                       res.status(502).send(err);
-                   } else {
-                       Object.assign(result, {results: deals, count: count});
-                       res.status(200).send(result);
-                   }
-                });
-            }
-        });
+        if (query.$and.length > 1){
+            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        } else {
+            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        }
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
         res.status(401).send(result);
@@ -54,32 +65,36 @@ router.get('/my', (req, res) => {
 router.get('/opened', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit } = options;
-    const query = {
-        $or: [
-            {buyerId: user._id},
-            {sellerId: user._id}
-        ],
-        status: openedStatus
-    };
+    const { page, limit, dateFrom, dateTill } = options;
+
+    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: openedStatus}]};
+    if (dateFrom) query.$and.push({dateOpened: {$gte: dateFrom}});
+    if (dateTill) query.$and.push({dateOpened: {$lte: dateTill}});
+    delete query.dateFrom;
+    delete query.dateTill;
 
     let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
-        Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
-            if (err) {
-                res.status(502).send(err);
-            } else {
-                Deal.count(query, (err, count) => {
-                    if (err) {
-                        res.status(502).send(err);
-                    } else {
-                        Object.assign(result, {results: deals, count: count});
-                        res.status(200).send(result);
-                    }
-                });
-            }
-        });
+        if (query.$and.length > 2){
+            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        } else {
+            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        }
     } else {
         Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
@@ -89,32 +104,36 @@ router.get('/opened', (req, res) => {
 router.get('/closed', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit } = options;
-    const query = {
-        $or: [
-            {buyerId: user._id},
-            {sellerId: user._id}
-        ],
-        status: closedStatus
-    };
+    const { page, limit, dateFrom, dateTill } = options;
+
+    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: closedStatus}]};
+    if (dateFrom) query.$and.push({dateClosed: {$gte: dateFrom}});
+    if (dateTill) query.$and.push({dateClosed: {$lte: dateTill}});
+    delete query.dateFrom;
+    delete query.dateTill;
 
     let result = Object.assign({}, {}, defaultResult);
 
     if (user) {
-        Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
-            if (err) {
-                res.status(502).send(err);
-            } else {
-                Deal.count(query, (err, count) => {
-                    if (err) {
-                        res.status(502).send(err);
-                    } else {
-                        Object.assign(result, {results: deals, count: count});
-                        res.status(200).send(result);
-                    }
-                });
-            }
-        });
+        if (query.$and.length > 2){
+            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        } else {
+            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
+                }
+            });
+        }
     } else {
         Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
@@ -125,11 +144,16 @@ router.get('/', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
     const { page, limit, dateTill, dateFrom } = options;
-    const query = { dateTill, dateFrom };
 
-    query.$and = [];
-    if (dateFrom) query.$and.push({dateClosed: {$gte: dateFrom}});
-    if (dateTill) query.$and.push({dateClosed: {$lte: dateTill}});
+    let query = { dateTill, dateFrom, $and: [] };
+    if (dateFrom) {
+        query.$and.push({dateClosed: {$gte: dateFrom}});
+        query.$and.push({dateOpened: {$gte: dateFrom}});
+    }
+    if (dateTill){
+        query.$and.push({dateClosed: {$lte: dateTill}});
+        query.$and.push({dateOpened: {$lte: dateTill}});
+    }
     delete query.dateFrom;
     delete query.dateTill;
 
@@ -141,14 +165,8 @@ router.get('/', (req, res) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
-                    Deal.count(query, (err, count) => {
-                        if (err) {
-                            res.status(502).send(err);
-                        } else {
-                            Object.assign(result, {results: deals, count: count});
-                            res.status(200).send(result);
-                        }
-                    });
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
                 }
             });
         } else {
@@ -156,14 +174,8 @@ router.get('/', (req, res) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
-                    Deal.count(query, (err, count) => {
-                        if (err) {
-                            res.status(502).send(err);
-                        } else {
-                            Object.assign(result, {results: deals, count: count});
-                            res.status(200).send(result);
-                        }
-                    });
+                    Object.assign(result, {results: deals, count: deals.length});
+                    res.status(200).send(result);
                 }
             });
         }
@@ -508,7 +520,7 @@ router.get('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                if (deal.buyerId == user._id || deal.sellerId == user._id){
                     res.status(200).send(deal);
                 } else {
                     Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
@@ -531,7 +543,7 @@ router.put('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                if (deal.buyerId == user._id || deal.sellerId == user._id){
                     Object.assign(deal, req.body);
                     deal.save((err) => {
                         if (err) {
@@ -563,7 +575,7 @@ router.delete('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                if (deal.buyerId == user._id || deak.sellerId == user._id){
+                if (deal.buyerId == user._id || deal.sellerId == user._id){
                     Deal.remove({_id: req.params.id}, (err) => {
                         if (err) {
                             res.status(502).send(err);
