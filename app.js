@@ -1,21 +1,21 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+let express = require('express');
+let path = require('path');
+let favicon = require('serve-favicon');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-var api = require('./routes/api');
-var manageApi = require('./routes/manage-api');
+let index = require('./routes/index');
+let api = require('./routes/api');
+let manageApi = require('./routes/manage-api');
 
-var config = require('./config/index');
+let config = require('./config/index');
 
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect(config.get('mongoose:uri'));
 
-var app = express();
+let app = express();
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

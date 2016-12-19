@@ -1,32 +1,47 @@
 /**
  * Created by wanfranck on 13.12.16.
  */
-var request = require('request');
+let request = require('request');
 
-let count = 0;
-let delay = (+process.argv[2] + 2) * 100 + 50;
-
-process.on('SIGHUP', (err, res) => {
-    console.log('Edward got SIGHUP');
-});
+let name = 'Edward', surname = 'Batler';
+let login = name + process.argv[2], password = surname + process.argv[2];
 
 class EdwardBot{
-    constructor(login, password){
+    constructor(login, password, name, surname){
         this.login = login;
         this.password = password;
+        this.name = name;
+        this.surname = surname;
+        this.email = this.name.toLowerCase() + '.' + this.surname.toLowerCase() + process.argv[2] + '@bot.org';
     }
 
     onStart(){
-        this.authenticate(() => {
-            let controlMarket = () => {
-                let dateFrom = new Date('2016-11-06T00:00:00.000Z');
-                let dateTill = new Date('2016-11-06T00:00:00.000Z');
-                this.getRates((deals) => {
-                    console.log(deals);
-                }, dateFrom, dateTill);
-            };
-            controlMarket();
-        });
+        let authenticate = () => {
+            this.authenticate(
+                () => {
+                    console.log('Authentication succeed');
+                    this.sendPid(() => console.log('PID sent'));
+                    this.getDelay(() => console.log('Got delay'));
+                    let controlMarket = () => {
+                        setTimeout(() => {
+                            this.getLastRate((rate) => {
+                                let date = new Date(rate.date);
+                                this.getDeals((deals) => {
+                                    console.log(deals);
+                                    controlMarket();
+                                }, date);
+                            });
+                        }, this.delay);
+                    };
+                    controlMarket();
+                },
+                () => {
+                    console.log('Ooops, authentication failed, need to register first');
+                    this.register(authenticate);
+                }
+            );
+        };
+        authenticate();
     }
 
     static calcWeightedAverage(deals){
@@ -37,7 +52,57 @@ class EdwardBot{
         return result.sum / result.units;
     }
 
-    authenticate(cb){
+    getDelay(cb){
+        request({
+            method:'GET',
+            url: 'http://localhost:3000/api/variables/rate-interval'
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response._id) {
+                this.delay = +response.value;
+                cb();
+            }
+        });
+    }
+
+    sendPid(cb){
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/bots',
+            form: {
+                botId: this.login,
+                pid: process.pid
+            }
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            console.log(response.botId, 'now has pid', response.pid);
+            if (response._id) cb();
+        });
+    }
+
+    register(cb){
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/register',
+            form: {
+                login: this.login,
+                password: this.password,
+                name: this.name,
+                surname: this.surname,
+                email: this.email,
+                role: 'admin'
+            }
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response._id) cb();
+
+        });
+    }
+
+    authenticate(resolve, reject){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/authenticate',
@@ -50,13 +115,15 @@ class EdwardBot{
             let response = JSON.parse(res.body);
             if (response.success){
                 this.token = response.token;
+                resolve();
+            } else {
+                reject();
             }
-            cb();
-        })
+        });
     }
 
     getDeals(cb, dateFrom, dateTill){
-        let options = { dateFrom, dateTill };
+        let options = { dateFrom, dateTill, status: 'CLOSED', side: 'SELL' };
 
         request({
             method:'GET',
@@ -68,7 +135,6 @@ class EdwardBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response);
             if (response.success){
                 cb(response.results);
             } else {
@@ -90,7 +156,6 @@ class EdwardBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response);
             if (response.success){
                 cb(response.results);
             } else {
@@ -99,14 +164,30 @@ class EdwardBot{
         });
     }
 
-    postRate(){
-
+    getLastRate(cb){
+        request({
+            method:'GET',
+            url: 'http://localhost:3000/api/rates/last'
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            if (response._id){
+                cb(response);
+            } else {
+                cb({});
+            }
+        });
     }
 
-    restartMarket(){
+    postRate(){
 
     }
 }
 
-let edward = new EdwardBot('Nick.Cerminara', 'password');
+let edward = new EdwardBot(login, password, name, surname);
 edward.onStart();
+
+process.on('SIGHUP', () => {
+    console.log('Edward got SIGHUP');
+    edward.getDelay(() => {});
+});

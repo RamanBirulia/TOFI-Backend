@@ -1,10 +1,10 @@
 /**
  * Created by wanfranck on 01.12.16.
  */
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 
-var Rate = require('../models/rate');
+let Rate = require('../models/rate');
 
 const defaultResult = {success: true, errors: {}};
 const defaultOptions = {limit: 15, page: 1};
@@ -12,7 +12,7 @@ const defaultOptions = {limit: 15, page: 1};
 router.get('/', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
-    const options = Object.assign({}, req.body || {}, defaultOptions);
+    const options = Object.assign({}, defaultOptions, req.body || {});
     const { limit, dateFrom, dateTill } = options;
 
     const query = { dateFrom, dateTill };
@@ -22,10 +22,8 @@ router.get('/', (req, res) => {
     delete query.dateFrom;
     delete query.dateTill;
 
-    console.log(query);
-
-    if (query.dateFrom || query.dateTill){
-        Rate.find(query).sort({date:-1}).limit(limit).exec((err, rates) => {
+    if (query.$and.length > 0){
+        Rate.find(query).sort({date:-1}).exec((err, rates) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -34,7 +32,7 @@ router.get('/', (req, res) => {
             }
         });
     } else {
-        Rate.find(query, (err, rates) => {
+        Rate.find().sort({date:-1}).limit(+limit).exec((err, rates) => {
             if (err) {
                 res.status(502).send(err);
             } else {
