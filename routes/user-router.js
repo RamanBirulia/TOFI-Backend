@@ -166,7 +166,7 @@ router.delete('/:id', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result);
+                res.status(200).send(result);
             }
         });
     }
