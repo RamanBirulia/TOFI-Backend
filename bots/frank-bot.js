@@ -86,6 +86,9 @@ class FrankBot{
     getDelay(cb = () => {}){
         request({
             method:'GET',
+            headers: {
+                'x-access-token': this.token
+            },
             url: 'http://localhost:3000/api/variables/deal-interval'
         }, (err, res) => {
             if (err) throw err;
@@ -100,6 +103,9 @@ class FrankBot{
     sendPid(cb = () => {}){
         request({
             method:'POST',
+            headers: {
+                'x-access-token': this.token
+            },
             url: 'http://localhost:3000/api/bots',
             form: {botId: this.login, pid: process.pid}
         }, (err, res) => {
@@ -169,6 +175,9 @@ class FrankBot{
         request({
             method:'GET',
             url: 'http://localhost:3000/api/rates/',
+            headers: {
+                'x-access-token': this.token
+            },
             form: {
                 limit: range
             }
@@ -186,6 +195,9 @@ class FrankBot{
     getLastRate(cb = (rate) => {}){
         request({
             method:'GET',
+            headers: {
+                'x-access-token': this.token
+            },
             url: 'http://localhost:3000/api/rates/last'
         }, (err, res) => {
             if (err) throw err;
@@ -236,7 +248,6 @@ class FrankBot{
             if (err) throw err;
             let response = JSON.parse(res.body);
             this.accounts = response;
-            console.log(response);
         });
     }
 
