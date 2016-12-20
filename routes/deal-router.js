@@ -434,7 +434,7 @@ router.post('/', (req, res) => {
                                     if (err) {
                                         res.status(502).send(err);
                                     } else {
-                                        account.amount += deals.granted * deal.sellPrice;
+                                        account.amount += deal.granted * deal.sellPrice;
                                         account.save((err) => {
                                             if (err) {
                                                 res.status(502).send(err);
