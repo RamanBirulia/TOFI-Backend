@@ -85,6 +85,8 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+let setupProcess = spawn('node', ['scripts/setup.js']);
+
 let botSpawner = spawn('node', ['bots/bot-spawner.js']);
 botSpawner.on('exit', () => console.log('Bot spawner exited ' + botSpawner.pid));
 botSpawner.stdout.on('data', (data) => console.log('' + data));
