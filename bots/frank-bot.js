@@ -9,9 +9,16 @@ let login = name + process.argv[2], password = surname + process.argv[2];
 let buySide = 'BUY';
 let sellSide = 'SELL';
 
+let min = (a, b) => {return a < b ? a: b};
+let max = (a, b) => {return a > b ? a: b};
+
 let randomInteger = (min, max) => {
     let rand = Math.random() * (max - min) + min;
     return Math.round(rand);
+};
+
+let randomFloat = (min, max) => {
+    return Math.random() * (max - min) + min;
 };
 
 class FrankBot{
@@ -27,51 +34,40 @@ class FrankBot{
         let authenticate = () => {
             this.authenticate(
                 () => {
-                    console.log('Authentication succeed');
-                    this.sendPid(() => console.log('PID sent'));
-                    this.getDelay(() => console.log('Got delay'));
+                    this.sendPid();
+                    this.getDelay();
 
                     let makeDeal = () => {
                         setTimeout(() => {
-                            let interval = randomInteger(5, 35);
-                            console.log('Interval', interval);
-                            this.getRates(interval, (rates) => {
-                                console.log('Rates', rates.length);
-                                let rate = FrankBot.calcMovingAverage(rates);
-                                let side = randomInteger(0, 1) == 1 ? buySide : sellSide;
-                                if (side == buySide){
-                                    console.log("Now I'm gonna buy some.");
-                                    let units = randomInteger(50, 100);
-                                    this.postDeal(side, units, rate, makeDeal);
-                                } else if (side == sellSide) {
-                                    console.log("Now I'm gonna sell some.");
-                                    let units = randomInteger(50, 100);
-                                    this.postDeal(side, units, rate, makeDeal);
-                                } else {
-                                    console.log("Hm, It's pretty difficult to make a decision.");
-                                }
+                            let range = randomInteger(5, 35);
+                            this.getRates(range, (rates) => {
+                                let predictable = FrankBot.calcMovingAverage(rates);
+                                this.getLastRate((rate) => {
+                                    const
+                                        side = predictable >= rate ? buySide : sellSide,
+                                        units = randomInteger(50, 100),
+                                        minRate = min(rate, predictable),
+                                        maxRate = max(rate, predictable),
+                                        price = randomFloat(minRate, maxRate);
+
+                                    if (side == buySide){
+                                        this.postDeal(side, units, price, makeDeal);
+                                    } else if (side == sellSide) {
+                                        this.postDeal(side, units, price, makeDeal);
+                                    }
+                                });
                             });
                         }, this.delay);
                     };
 
                     this.getAccounts(() => {
-                        console.log(this.accounts);
                         if (this.accounts.length == 0){
-                            let createAccounts = () => {
-                                this.createAccount('USD', 1010);
-                                this.createAccount('EUR', 980);
-                            };
-                            createAccounts();
-                        } else {
-                            console.log('All right, Now I can trade');
+                            this.createAccounts();
                         }
                         makeDeal();
                     });
                 },
-                () => {
-                    console.log('Ooops, authentication failed, need to register first');
-                    this.register(authenticate);
-                }
+                () => this.register(authenticate)
             );
         };
 
@@ -87,7 +83,7 @@ class FrankBot{
         return result.sum / result.count;
     }
 
-    getDelay(cb){
+    getDelay(cb = () => {}){
         request({
             method:'GET',
             url: 'http://localhost:3000/api/variables/deal-interval'
@@ -101,25 +97,21 @@ class FrankBot{
         });
     }
 
-    sendPid(cb){
+    sendPid(cb = () => {}){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/bots',
-            form: {
-                botId: this.login,
-                pid: process.pid
-            }
+            form: {botId: this.login, pid: process.pid}
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response.botId, 'now has pid', response.pid);
             if (response._id) cb();
         });
     }
 
-    register(cb){
+    register(cb = () => {}){
         request({
-            method:'POST',
+            method: 'POST',
             url: 'http://localhost:3000/api/register',
             form: {
                 login: this.login,
@@ -133,13 +125,12 @@ class FrankBot{
             if (err) throw err;
             let response = JSON.parse(res.body);
             if (response._id) cb();
-
         });
     }
 
-    authenticate(resolve, reject){
+    authenticate(resolve = () => {}, reject = () => {}){
         request({
-            method:'POST',
+            method: 'POST',
             url: 'http://localhost:3000/api/authenticate',
             form: {
                 login: this.login,
@@ -157,7 +148,7 @@ class FrankBot{
         });
     }
 
-    getAccounts(cb){
+    getAccounts(cb = () => {}){
         request({
             method:'GET',
             headers: {
@@ -174,15 +165,15 @@ class FrankBot{
         })
     }
 
-    getRates(interval, cb){
+    getRates(range, cb = () => {}){
         request({
             method:'GET',
             url: 'http://localhost:3000/api/rates/',
             form: {
-                limit: interval
+                limit: range
             }
         }, (err, res) => {
-           if (err) throw err;
+            if (err) throw err;
             let response = JSON.parse(res.body);
             if (response.success){
                 cb(response.results);
@@ -192,22 +183,20 @@ class FrankBot{
         });
     }
 
-    getLastRate(cb){
+    getLastRate(cb = (rate) => {}){
         request({
             method:'GET',
             url: 'http://localhost:3000/api/rates/last'
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            if (response.success){
-                cb(response.results);
-            } else {
-                cb({});
+            if (response._id){
+                cb(response.rate);
             }
         });
     }
 
-    postDeal(side, units, rate, cb){
+    postDeal(side, units, rate, cb = () => {}){
         let body = {};
         body['side'] = side;
         body['units'] = units;
@@ -226,18 +215,19 @@ class FrankBot{
             form: body
         }, (err, res) => {
             if (err) throw err;
-            console.log(res.body);
+            let response = JSON.parse(res.body);
+            console.log(response.units, response.side, response.status);
             cb();
         })
     }
 
-    createAccount(currency, amount){
+    createAccounts(){
         request({
-            url: 'http://localhost:3000/api/accounts/',
+            url: 'http://localhost:3000/api/accounts/my',
             method: 'POST',
             form: {
-                amount: amount,
-                currency: currency
+                amountUSD: 1000,
+                amountEUR: 1000
             },
             headers: {
                 'x-access-token': this.token
@@ -245,6 +235,7 @@ class FrankBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
+            this.accounts = response;
             console.log(response);
         });
     }
@@ -256,14 +247,10 @@ class FrankBot{
                 request({
                     url: 'http://localhost:3000/api/accounts/' + account._id,
                     method: 'PUT',
-                    form: {
-                        amount: amount
-                    },
-                    headers: {
-                        'x-access-token': this.token
-                    }
+                    form: {amount: amount},
+                    headers: {'x-access-token': this.token}
                 }, (err, res) => {
-                    console.log(res.body);
+
                 });
             }
         }
@@ -274,6 +261,5 @@ let frank = new FrankBot(login, password, name, surname);
 frank.onStart();
 
 process.on('SIGHUP', (err, res) => {
-    console.log('Frank got SIGHUP');
     frank.getDelay(() => {});
 });
