@@ -20,6 +20,14 @@ router.get('/', (req, res) => {
 });
 
 router.get('/setup-users', (req, res) => {
+    let admin = new User({
+        email: 'admin@admin.admin',
+        login: 'admin',
+        name: 'Donald',
+        surname: 'Trump',
+        password: 'admin',
+        role: 'admin'
+    });
     let nick = new User({
         email: 'nick.cerminara@sample.com',
         login: 'Nick.Cerminara',
@@ -45,7 +53,7 @@ router.get('/setup-users', (req, res) => {
         role: 'trader'
     });
 
-    let users = [nick, petr, vlad];
+    let users = [admin, nick, petr, vlad];
 
     let createAccounts = (user, amountEUR, amountUSD, cb) => {
         let accountEUR = new Account();

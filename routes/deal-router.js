@@ -155,12 +155,18 @@ router.get('/closed/new', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(result, {results: deals, count: deals.length});
                 deals.forEach(deal => {
                     deal.checked = true;
                     deal.save((err) => {});
                 });
-                res.status(200).send(result);
+                Account.find({userId: user._id}, (err, accounts) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        Object.assign(result, {results: deals, count: deals.length, accounts: accounts});
+                        res.status(200).send(result);
+                    }
+                });
             }
         });
     } else {
@@ -194,6 +200,11 @@ router.post('/', (req, res) => {
 
                 Object.assign(deal, req.body);
                 Object.assign(deal, {dateOpened: date, granted: 0, status: openedStatus});
+
+                if (deal.units <= 0) {
+                    Object.assign(result, {success: false, errors: {deal: 'Non-positive units value.'}});
+                    res.status(403).send(result);
+                }
 
                 if (deal.side == buySide) {
                     Object.assign(deal, {buyerId: user._id});
