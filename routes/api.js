@@ -19,11 +19,6 @@ let User = require('../models/user');
 
 const defaultResult = {success: true, errors: {}};
 
-router.use('/bots', botRouter);
-router.use('/rates', rateRouter);
-router.use('/instruments', instrumentRouter);
-router.use('/variables', variableRouter);
-
 router.post('/register', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
@@ -110,6 +105,10 @@ router.get('/', (req, res) => {
     res.status(200).send(req.decoded._doc);
 });
 
+router.use('/instruments', instrumentRouter);
+router.use('/variables', variableRouter);
+router.use('/bots', botRouter);
+router.use('/rates', rateRouter);
 router.use('/users', userRouter);
 router.use('/deals', dealRouter);
 router.use('/accounts', accountRouter);
