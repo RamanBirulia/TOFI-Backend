@@ -34,13 +34,13 @@ router.post('/my', (req, res) => {
 
     if (user) {
         let accountUSD = new Account();
-        Object.assign(accountUSD, {userId: user._id, amount: 0, blocked: 0, currency: 'USD'});
+        Object.assign(accountUSD, {userId: user._id, amount: +req.body.amountUSD, currency: 'USD'});
         accountUSD.save((err) => {
             if (err) {
                 res.status(502).send(err);
             } else {
                 let accountEUR = new Account();
-                Object.assign(accountEUR, {userId: user._id, amount: 0, blocked: 0, currency: 'EUR'});
+                Object.assign(accountEUR, {userId: user._id, amount: +req.body.amountEUR, currency: 'EUR'});
                 accountEUR.save((err) => {
                     if (err) {
                         res.status(502).send(err);

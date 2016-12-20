@@ -62,11 +62,7 @@ class FrankBot{
 
                     this.getAccounts(() => {
                         if (this.accounts.length == 0){
-                            let createAccounts = () => {
-                                this.createAccount('USD', 1010);
-                                this.createAccount('EUR', 980);
-                            };
-                            createAccounts();
+                            this.createAccounts();
                         }
                         makeDeal();
                     });
@@ -225,13 +221,13 @@ class FrankBot{
         })
     }
 
-    createAccount(currency, amount){
+    createAccounts(){
         request({
-            url: 'http://localhost:3000/api/accounts/',
+            url: 'http://localhost:3000/api/accounts/my',
             method: 'POST',
             form: {
-                amount: amount,
-                currency: currency
+                amountUSD: 1000,
+                amountEUR: 1000
             },
             headers: {
                 'x-access-token': this.token
@@ -239,6 +235,7 @@ class FrankBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
+            this.accounts = response;
             console.log(response);
         });
     }
