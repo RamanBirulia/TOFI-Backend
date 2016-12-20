@@ -5,6 +5,7 @@ var fs = require('fs');
 var parseSync = require('csv-parse/lib/sync');
 var http = require('http');
 var request = require('request');
+let spawn = require('child_process').spawn;
 
 let formatString = (path, search) => {
     let str = fs.readFileSync(path, 'utf-8');

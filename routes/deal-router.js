@@ -190,13 +190,7 @@ router.post('/', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                let getDate = (date) => {
-                    let thisDay = String(date).slice(0, 10);
-                    let thisHours = String(new Date()).slice(10, 24);
-                    return new Date(thisDay + thisHours);
-                };
-
-                let date = getDate(rate.date);
+                let date = rate.date;
 
                 Object.assign(deal, req.body);
                 Object.assign(deal, {dateOpened: date, granted: 0, status: openedStatus});
@@ -348,7 +342,6 @@ router.post('/', (req, res) => {
                                                 res.status(502).send(err);
                                             } else {
                                                 account.amount += possible;
-                                                amount += possible;
                                                 account.save((err) => {
                                                     if (err) {
                                                         res.status(502).send(err);
@@ -422,7 +415,7 @@ router.post('/', (req, res) => {
                                                     userId: user._id, currency: 'USD'
                                                 }, (err, account) => {
                                                     if (deal.status == closedStatus) {
-                                                        account.amount += deal.buyFunds;
+                                                        account.amount += deal.buyFunds - amount;
                                                     }
                                                     account.save((err) => {
                                                         if (err) {
@@ -441,7 +434,7 @@ router.post('/', (req, res) => {
                                     if (err) {
                                         res.status(502).send(err);
                                     } else {
-                                        account.amount += deal.granted * deal.sellPrice;
+                                        account.amount += deals.granted * deal.sellPrice;
                                         account.save((err) => {
                                             if (err) {
                                                 res.status(502).send(err);
@@ -469,19 +462,13 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit, dateTill, dateFrom } = options;
+    const { page, limit, dateTill, dateFrom, side, status } = options;
 
-    let query = { dateTill, dateFrom, $and: [] };
-    if (dateFrom) {
-        query.$and.push({dateClosed: {$gte: dateFrom}});
-        query.$and.push({dateOpened: {$gte: dateFrom}});
-    }
-    if (dateTill){
-        query.$and.push({dateClosed: {$lte: dateTill}});
-        query.$and.push({dateOpened: {$lte: dateTill}});
-    }
-    delete query.dateFrom;
-    delete query.dateTill;
+    let query = { $and: [] };
+    if (side) query.$and.push({side: side});
+    if (status) query.$and.push({status: status});
+    if (dateFrom) query.$and.push({dateClosed: {$gte: dateFrom}});
+    if (dateTill) query.$and.push({dateClosed: {$lte: dateTill}});
 
     let result = Object.assign({}, {}, defaultResult);
 

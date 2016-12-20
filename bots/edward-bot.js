@@ -19,14 +19,14 @@ class EdwardBot{
         let authenticate = () => {
             this.authenticate(
                 () => {
-                    this.sendPid(() => console.log('PID sent'));
-                    this.getDelay(() => console.log('Got delay'));
+                    this.sendPid();
+                    this.getDelay();
                     let controlMarket = () => {
                         setTimeout(() => {
                             this.getLastRate((rate) => {
-                                let date = new Date(rate.date);
+                                let date = rate.date;
                                 this.getDeals((deals) => {
-                                    console.log(deals);
+                                    console.log(deals.length);
                                     controlMarket();
                                 }, date);
                             });
@@ -50,9 +50,12 @@ class EdwardBot{
         return result.sum / result.units;
     }
 
-    getDelay(cb){
+    getDelay(cb = () => {}){
         request({
             method:'GET',
+            headers: {
+                'x-access-token': this.token
+            },
             url: 'http://localhost:3000/api/variables/rate-interval'
         }, (err, res) => {
             if (err) throw err;
@@ -68,6 +71,9 @@ class EdwardBot{
         request({
             method:'POST',
             url: 'http://localhost:3000/api/bots',
+            headers: {
+                'x-access-token': this.token
+            },
             form: {
                 botId: this.login,
                 pid: process.pid
@@ -75,7 +81,6 @@ class EdwardBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response.botId, 'now has pid', response.pid);
             if (response._id) cb();
         });
     }
@@ -165,7 +170,10 @@ class EdwardBot{
     getLastRate(cb){
         request({
             method:'GET',
-            url: 'http://localhost:3000/api/rates/last'
+            url: 'http://localhost:3000/api/rates/last',
+            headers: {
+                'x-access-token': this.token
+            },
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
