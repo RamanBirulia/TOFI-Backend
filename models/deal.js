@@ -1,19 +1,23 @@
 /**
  * Created by wanfranck on 30.11.16.
  */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ObjectId = Schema.Types.ObjectId;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
+let ObjectId = Schema.Types.ObjectId;
 
-var DealSchema = new Schema({
-    instrument: String,
+let DealSchema = new Schema({
     units: Number,
     granted: Number,
+    instrument: String,
 
     sellerId: ObjectId,
     sellPrice: Number,
+
+    checked: Boolean,
+
     buyerId: ObjectId,
     buyPrice: Number,
+    buyFunds: Number,
 
     side: String,
     status: String,

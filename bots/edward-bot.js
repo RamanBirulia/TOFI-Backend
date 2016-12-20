@@ -19,7 +19,6 @@ class EdwardBot{
         let authenticate = () => {
             this.authenticate(
                 () => {
-                    console.log('Authentication succeed');
                     this.sendPid(() => console.log('PID sent'));
                     this.getDelay(() => console.log('Got delay'));
                     let controlMarket = () => {
@@ -36,7 +35,6 @@ class EdwardBot{
                     controlMarket();
                 },
                 () => {
-                    console.log('Ooops, authentication failed, need to register first');
                     this.register(authenticate);
                 }
             );
@@ -66,7 +64,7 @@ class EdwardBot{
         });
     }
 
-    sendPid(cb){
+    sendPid(cb = () => {}){
         request({
             method:'POST',
             url: 'http://localhost:3000/api/bots',
