@@ -281,30 +281,26 @@ router.post('/', (req, res) => {
                                                     if (err) {
                                                         res.status(502).send(err);
                                                     } else {
-                                                        if (deals[ind].granted == deals[ind].units){
+                                                        if (deals[ind].granted == deals[ind].units) {
                                                             deals[ind].status = closedStatus;
                                                             deals[ind].dateClosed = date;
                                                             deals[ind].checked = false;
-                                                            deals[ind].save((err) => {
-                                                                if (err) {
-                                                                    res.status(502).send(err);
-                                                                } else {
-                                                                    if (deal.granted == deal.units) {
-                                                                        deal.status = closedStatus;
-                                                                        deal.dateClosed = date;
-                                                                        deal.checked = false;
-                                                                        cb();
-                                                                    } else {
-                                                                        checkDeal(ind + 1);
-                                                                    }
-                                                                }
-                                                            });
-                                                        } else {
-                                                            deal.status = closedStatus;
-                                                            deal.dateClosed = date;
-                                                            deal.checked = false;
-                                                            cb();
                                                         }
+
+                                                        deals[ind].save((err) => {
+                                                            if (err) {
+                                                                res.status(502).send(err);
+                                                            } else {
+                                                                if (deal.granted == deal.units) {
+                                                                    deal.status = closedStatus;
+                                                                    deal.dateClosed = date;
+                                                                    deal.checked = false;
+                                                                    cb();
+                                                                } else {
+                                                                    checkDeal(ind + 1);
+                                                                }
+                                                            }
+                                                        });
                                                     }
                                                 });
                                             }
@@ -331,7 +327,7 @@ router.post('/', (req, res) => {
 
                                         let actualFundsUSD = possible * deal.sellPrice;
                                         deals[ind].granted += possible;
-                                        deals[ind].buyFunds -= actualFundsUSD;
+                                        deals[ind].buyFunds -= parseFloat(actualFundsUSD.toFixed(4));
                                         deal.granted += possible;
 
                                         Account.findOne({
@@ -349,37 +345,33 @@ router.post('/', (req, res) => {
                                                             deals[ind].status = closedStatus;
                                                             deals[ind].dateClosed = date;
                                                             deals[ind].checked = false;
-                                                            deals[ind].save((err) => {
-                                                                if (err) {
-                                                                    res.status(502).send(err);
-                                                                } else {
-                                                                    Account.findOne({
-                                                                        userId: deals[ind].buyerId, currency: 'USD'
-                                                                    }, (err, account) => {
-                                                                        if (err) {
-                                                                            res.status(502).send(err);
-                                                                        } else {
-                                                                            account.amount += parseFloat(deals[ind].buyFunds.toFixed(4));
-                                                                            account.save((err) => {
-                                                                                if (deal.granted == deal.units) {
-                                                                                    deal.status = closedStatus;
-                                                                                    deal.dateClosed = date;
-                                                                                    deal.checked = false;
-                                                                                    cb();
-                                                                                } else {
-                                                                                    checkDeal(ind + 1);
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }
-                                                            });
-                                                        } else {
-                                                            deal.status = closedStatus;
-                                                            deal.dateClosed = date;
-                                                            deal.checked = false;
-                                                            cb();
                                                         }
+
+                                                        deals[ind].save((err) => {
+                                                            if (err) {
+                                                                res.status(502).send(err);
+                                                            } else {
+                                                                Account.findOne({
+                                                                    userId: deals[ind].buyerId, currency: 'USD'
+                                                                }, (err, account) => {
+                                                                    if (err) {
+                                                                        res.status(502).send(err);
+                                                                    } else {
+                                                                        account.amount += parseFloat(deals[ind].buyFunds.toFixed(4));
+                                                                        account.save((err) => {
+                                                                            if (deal.granted == deal.units) {
+                                                                                deal.status = closedStatus;
+                                                                                deal.dateClosed = date;
+                                                                                deal.checked = false;
+                                                                                cb();
+                                                                            } else {
+                                                                                checkDeal(ind + 1);
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
                                                     }
                                                 });
                                             }
