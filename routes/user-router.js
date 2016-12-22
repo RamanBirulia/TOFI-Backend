@@ -18,7 +18,12 @@ router.get('/me', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(user);
+                if (user) {
+                    res.status(200).send(user);
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'User not found.'}});
+                    res.status(403).send(result);
+                }
             }
         });
     } else {
@@ -36,14 +41,20 @@ router.put('/me', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                Object.assign(user, req.body);
-                user.save((err) => {
-                    if (err) {
-                        res.status(502).send(err);
-                    } else {
-                        res.status(200).send(user);
-                    }
-                });
+                if (user){
+                    Object.assign(user, req.body);
+                    user.save((err) => {
+                        if (err) {
+                            res.status(502).send(err);
+                        } else {
+                            res.status(200).send(user);
+                        }
+                    });
+                } else {
+                    Object.assign(result, {success: false, errors: {user: 'User not found.'}});
+                    res.status(403).send(result);
+                }
+
             }
         });
     }
