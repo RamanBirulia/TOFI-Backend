@@ -56,13 +56,13 @@ class FrankBot{
                                         units = randomInteger(50, 100),
                                         minRate = min(rate.rate, predictable),
                                         maxRate = max(rate.rate, predictable),
-                                        price = parseFloat(randomFloat(minRate, maxRate).toFixed(4));;
+                                        price = parseFloat(randomFloat(minRate, maxRate).toFixed(4));
 
                                     if (this.failedSell + this.failedBuy >= 3) {
                                         this.failedSell = 0;
                                         this.failedBuy = 0;
                                         addFunds('USD', 1000);
-                                        addFunds('EUR', 1000)
+                                        addFunds('EUR', 1000);
                                     } else if (this.failedSell > 0) {
                                         side = buySide;
                                     } else if (this.failedBuy > 0) {
