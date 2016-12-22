@@ -179,11 +179,13 @@ router.post('/', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
+
                 let getDate = (date) => {
                     let newDate = new Date();
                     newDate.setDate(date.getDate());
                     newDate.setMonth(date.getMonth());
                     newDate.setFullYear(date.getFullYear());
+                    newDate.setHours(newDate.getHours() + 3);
                     return newDate;
                 };
 
