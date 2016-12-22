@@ -94,7 +94,7 @@ router.get('/opened', (req, res) => {
 router.get('/closed', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit, dateFrom, dateTill } = options;
+    const { limit, dateFrom, dateTill } = options;
 
     let query = {$and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: closedStatus}]};
     if (dateFrom) query.$and.push({dateClosed: {$gte: dateFrom}});
@@ -113,7 +113,7 @@ router.get('/closed', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).sort({dateClosed:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateClosed:-1}).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -459,7 +459,7 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit, dateTill, dateFrom, side, status } = options;
+    const { limit, dateTill, dateFrom, side, status } = options;
 
     let query = { $and: [] };
     if (side) query.$and.push({side: side});
@@ -480,7 +480,7 @@ router.get('/', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
