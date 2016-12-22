@@ -9,6 +9,7 @@ const defaultResult = {success: true, errors:{}};
 
 router.get('/', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
+
     Instrument.find({}, (err, instruments) => {
         if (err) {
             res.status(502).send(err);

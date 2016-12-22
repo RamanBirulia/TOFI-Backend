@@ -141,10 +141,10 @@ router.get('/', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
     const options = Object.assign({}, req.body || {}, defaultOptions);
-    const { page, limit } = options;
+    const { limit } = options;
 
     if (user.role == 'admin') {
-        Account.find().skip((+page - 1) * +limit).limit(+limit).exec((err, accounts) => {
+        Account.find().limit(+limit).exec((err, accounts) => {
             if (err) {
                 res.status(502).send(err);
             } else {

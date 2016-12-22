@@ -15,24 +15,16 @@ const openedStatus = 'OPENED';
 const closedStatus = 'CLOSED';
 
 const defaultResult = {success: true, errors: {}};
-const defaultOptions = {limit: 15, page: 1};
+const defaultOptions = {limit: 50, page: 1};
 
 router.get('/my', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit, dateTill, dateFrom } = options;
+    const { limit, dateTill, dateFrom } = options;
 
-    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}]};
-    if (dateFrom) {
-        query.$and.push({dateClosed: {$gte: dateFrom}});
-        query.$and.push({dateOpened: {$gte: dateFrom}});
-    }
-    if (dateTill){
-        query.$and.push({dateClosed: {$lte: dateTill}});
-        query.$and.push({dateOpened: {$lte: dateTill}});
-    }
-    delete query.dateFrom;
-    delete query.dateTill;
+    let query = {$and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}]};
+    if (dateFrom) query.$and.push({dateOpened: {$gte: dateFrom}});
+    if (dateTill) query.$and.push({dateOpened: {$lte: dateTill}});
 
     let result = Object.assign({}, {}, defaultResult);
 
@@ -47,7 +39,7 @@ router.get('/my', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -65,13 +57,11 @@ router.get('/my', (req, res) => {
 router.get('/opened', (req, res) => {
     const user = req.decoded._doc;
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { page, limit, dateFrom, dateTill } = options;
+    const { limit, dateFrom, dateTill } = options;
 
-    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: openedStatus}]};
+    let query = {$and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: openedStatus}]};
     if (dateFrom) query.$and.push({dateOpened: {$gte: dateFrom}});
     if (dateTill) query.$and.push({dateOpened: {$lte: dateTill}});
-    delete query.dateFrom;
-    delete query.dateTill;
 
     let result = Object.assign({}, {}, defaultResult);
 
@@ -86,7 +76,7 @@ router.get('/opened', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -106,11 +96,9 @@ router.get('/closed', (req, res) => {
     const options = Object.assign({}, defaultOptions, req.body || {});
     const { page, limit, dateFrom, dateTill } = options;
 
-    let query = {dateFrom, dateTill, $and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: closedStatus}]};
+    let query = {$and: [{$or: [{buyerId: user._id}, {sellerId: user._id}]}, {status: closedStatus}]};
     if (dateFrom) query.$and.push({dateClosed: {$gte: dateFrom}});
     if (dateTill) query.$and.push({dateClosed: {$lte: dateTill}});
-    delete query.dateFrom;
-    delete query.dateTill;
 
     let result = Object.assign({}, {}, defaultResult);
 
@@ -146,7 +134,8 @@ router.get('/closed/new', (req, res) => {
         query = {$and: [
             {$or: [{buyerId: user._id}, {sellerId: user._id}]},
             {status: closedStatus},
-            {checked: false}]};
+            {checked: false}
+        ]};
 
     let result = Object.assign({}, {}, defaultResult);
 
