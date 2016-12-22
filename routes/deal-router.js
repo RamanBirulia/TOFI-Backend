@@ -328,9 +328,9 @@ router.post('/', (req, res) => {
                                         let possible = Math.min(deals[ind].units - deals[ind].granted, residue);
 
                                         let actualFundsUSD = possible * deal.sellPrice;
+                                        deal.granted += possible;
                                         deals[ind].granted += possible;
                                         deals[ind].buyFunds -= parseFloat(actualFundsUSD.toFixed(4));
-                                        deal.granted += possible;
 
                                         Account.findOne({
                                             userId: deals[ind].buyerId, currency: 'EUR'
@@ -338,7 +338,7 @@ router.post('/', (req, res) => {
                                             if (err) {
                                                 res.status(502).send(err);
                                             } else {
-                                                account.amount += parseFloat(possible.toFixed(4));
+                                                account.amount += possible;
                                                 account.save((err) => {
                                                     if (err) {
                                                         res.status(502).send(err);
@@ -359,7 +359,9 @@ router.post('/', (req, res) => {
                                                                     if (err) {
                                                                         res.status(502).send(err);
                                                                     } else {
-                                                                        account.amount += parseFloat(deals[ind].buyFunds.toFixed(4));
+                                                                        if (deals[ind].status == closedStatus){
+                                                                            account.amount += parseFloat(deals[ind].buyFunds.toFixed(4));
+                                                                        }
                                                                         account.save((err) => {
                                                                             if (deal.granted == deal.units) {
                                                                                 deal.status = closedStatus;
