@@ -188,8 +188,8 @@ router.get('/setup-deals', (req, res) => {
 
 router.get('/setup-variables', (req, res) => {
     let params = [
-        ['deal-interval', '1000'],
-        ['rate-interval', '10000'],
+        ['deal-interval', '5000'],
+        ['rate-interval', '60000'],
         ['path', 'maybe-once-but-not-now']
     ];
     Variable.remove({}, (err) => {
