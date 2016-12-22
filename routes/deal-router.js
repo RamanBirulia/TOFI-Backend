@@ -199,8 +199,10 @@ router.post('/', (req, res) => {
 
                 if (deal.side == buySide) {
                     Object.assign(deal, {buyerId: user._id});
+                    deal.buyPrice = parseFloat(deal.buyPrice.toFixed(4));
                 } else if (deal.side == sellSide) {
                     Object.assign(deal, {sellerId: user._id});
+                    deal.sellPrice = parseFloat(deal.sellPrice.toFixed(4));
                 } else {
                     Object.assign(result, {success: false, errors: {side: 'Invalid side value.'}});
                     res.status(403).send(result);
@@ -219,7 +221,7 @@ router.post('/', (req, res) => {
                                 } else {
                                     let fundsUSD = deal.units * deal.buyPrice;
                                     Object.assign(deal, {buyFunds: fundsUSD});
-                                    account.amount -= fundsUSD;
+                                    account.amount -= parseFloat(fundsUSD.toFixed(4));
                                     account.save((err) => {
                                         if (err) {
                                             res.status(502).send(err);
@@ -233,7 +235,7 @@ router.post('/', (req, res) => {
                                     Object.assign(result, {success: false, errors: {account: 'Insufficient funds.'}});
                                     res.status(403).send(result);
                                 } else {
-                                    account.amount -= deal.units;
+                                    account.amount -= parseFloat(deal.units.toFixed(4));
                                     account.save((err) => {
                                         if (err) {
                                             res.status(502).send(err);
@@ -273,7 +275,7 @@ router.post('/', (req, res) => {
                                                 res.status(502).send(err);
                                             } else {
                                                 let actualFundsUSD = deals[ind].sellPrice * possible;
-                                                account.amount += actualFundsUSD;
+                                                account.amount += parseFloat(actualFundsUSD.toFixed(4));
                                                 amount += actualFundsUSD;
                                                 account.save((err) => {
                                                     if (err) {
@@ -338,7 +340,7 @@ router.post('/', (req, res) => {
                                             if (err) {
                                                 res.status(502).send(err);
                                             } else {
-                                                account.amount += possible;
+                                                account.amount += parseFloat(possible.toFixed(4));
                                                 account.save((err) => {
                                                     if (err) {
                                                         res.status(502).send(err);
@@ -357,7 +359,7 @@ router.post('/', (req, res) => {
                                                                         if (err) {
                                                                             res.status(502).send(err);
                                                                         } else {
-                                                                            account.amount += deals[ind].buyFunds;
+                                                                            account.amount += parseFloat(deals[ind].buyFunds.toFixed(4));
                                                                             account.save((err) => {
                                                                                 if (deal.granted == deal.units) {
                                                                                     deal.status = closedStatus;
@@ -403,7 +405,7 @@ router.post('/', (req, res) => {
                                     if (err) {
                                         res.status(502).send(err);
                                     } else {
-                                        account.amount += deal.granted;
+                                        account.amount += parseFloat(deal.granted.toFixed(4));
                                         account.save((err) => {
                                             if (err) {
                                                 res.status(502).send(err);
@@ -412,7 +414,7 @@ router.post('/', (req, res) => {
                                                     userId: user._id, currency: 'USD'
                                                 }, (err, account) => {
                                                     if (deal.status == closedStatus) {
-                                                        account.amount += deal.buyFunds - amount;
+                                                        account.amount += parseFloat((deal.buyFunds - amount).toFixed(4));
                                                     }
                                                     account.save((err) => {
                                                         if (err) {
@@ -431,7 +433,7 @@ router.post('/', (req, res) => {
                                     if (err) {
                                         res.status(502).send(err);
                                     } else {
-                                        account.amount += deal.granted * deal.sellPrice;
+                                        account.amount += parseFloat((deal.granted * deal.sellPrice).toFixed(4));
                                         account.save((err) => {
                                             if (err) {
                                                 res.status(502).send(err);
@@ -480,6 +482,7 @@ router.get('/', (req, res) => {
                 }
             });
         } else {
+            delete query.$and;
             Deal.find(query).sort({dateOpened:-1}).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
