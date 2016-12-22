@@ -7,8 +7,8 @@ let router = express.Router();
 let Bot = require('../models/bot');
 let Variable = require('../models/variable');
 
-const dealDelta = 200;
-const rateDelta = 2000;
+const dealDelta = 1000;
+const rateDelta = 10000;
 
 router.get('/deal-interval', (req, res) => {
     Variable.findOne({key:'deal-interval'}, (err, variable) => {

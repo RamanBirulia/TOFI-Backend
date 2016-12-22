@@ -19,6 +19,8 @@ let User = require('../models/user');
 
 const defaultResult = {success: true, errors: {}};
 
+router.use('/variables', variableRouter);
+
 router.post('/register', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
@@ -106,7 +108,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/instruments', instrumentRouter);
-router.use('/variables', variableRouter);
 router.use('/bots', botRouter);
 router.use('/rates', rateRouter);
 router.use('/users', userRouter);

@@ -19,6 +19,5 @@ spawn('node', ['bots/edward-bot.js', 73], {
         0,
         fs.openSync('logs/edward-bot-' + 73 + '-log.out', 'w'),
         fs.openSync('logs/edward-bot-' + 73 + '-log.out', 'w')
-    ]});
-
-console.log('How to send something to mongo from bots');
+    ]
+});
