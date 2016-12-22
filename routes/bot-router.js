@@ -49,10 +49,13 @@ router.post('/create', (req, res) => {
         Bot.find({botId: re}, (err, bots) => {
             bots = bots.map(bot => bot.botId.split(re)[1]);
             while (bots.indexOf(indicator) != -1) indicator++;
-            let child = spawn('node', ['bots/frank-bot.js', indicator]);
-            child.on('exit', () => console.log('Frank exited ' + child.pid));
-            child.stdout.on('data', (data) => console.log(child.pid + '-stdout: ' + data));
-            child.stderr.on('data', (data) => console.log(child.pid + '-stderr: ' + data));
+            spawn('node', ['bots/frank-bot.js', indicator], {
+                stdio: [
+                    0,
+                    fs.openSync('logs/frank-bot-' + indicator + '-log.out', 'w'),
+                    fs.openSync('logs/frank-bot-' + indicator + '-log.out', 'w')
+                ]
+            });
         });
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
@@ -61,10 +64,22 @@ router.post('/create', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-});
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
 
-router.delete('/:id', (req, res) => {
-
+    if (user.role == 'admin'){
+        Bot.find({}, (err, bots) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                Object.assign(result, {results: bots, count:bots.length});
+                res.status(200).send(result);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
+    }
 });
 
 module.exports = router;

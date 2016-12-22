@@ -38,7 +38,7 @@ router.get('/my', (req, res) => {
 
     if (user) {
         if (query.$and.length > 1){
-            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -47,7 +47,7 @@ router.get('/my', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -77,7 +77,7 @@ router.get('/opened', (req, res) => {
 
     if (user) {
         if (query.$and.length > 2){
-            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -86,7 +86,7 @@ router.get('/opened', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -116,7 +116,7 @@ router.get('/closed', (req, res) => {
 
     if (user) {
         if (query.$and.length > 2){
-            Deal.find(query).sort({date:-1}).exec((err, deals) => {
+            Deal.find(query).sort({dateClosed:-1}).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -125,7 +125,7 @@ router.get('/closed', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateClosed:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -151,7 +151,7 @@ router.get('/closed/new', (req, res) => {
     let result = Object.assign({}, {}, defaultResult);
 
     if (user){
-        Deal.find(query).sort({date:-1}).exec((err, deals) => {
+        Deal.find(query).sort({dateClosed:-1}).exec((err, deals) => {
             if (err) {
                 res.status(502).send(err);
             } else {
@@ -190,7 +190,15 @@ router.post('/', (req, res) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                let date = rate.date;
+                let getDate = (date) => {
+                    let newDate = new Date();
+                    newDate.setDate(date.getDate());
+                    newDate.setMonth(date.getMonth());
+                    newDate.setFullYear(date.getFullYear());
+                    return newDate;
+                };
+
+                let date = getDate(rate.date);
 
                 Object.assign(deal, req.body);
                 Object.assign(deal, {dateOpened: date, granted: 0, status: openedStatus});
@@ -474,7 +482,7 @@ router.get('/', (req, res) => {
 
     if (user.role == 'admin') {
         if (query.$and.length > 0){
-            Deal.find(query).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {
@@ -483,7 +491,7 @@ router.get('/', (req, res) => {
                 }
             });
         } else {
-            Deal.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
+            Deal.find(query).sort({dateOpened:-1}).skip((+page - 1) * +limit).limit(+limit).exec((err, deals) => {
                 if (err) {
                     res.status(502).send(err);
                 } else {

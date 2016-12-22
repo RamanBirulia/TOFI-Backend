@@ -44,10 +44,10 @@ class FrankBot{
                                 let predictable = FrankBot.calcMovingAverage(rates);
                                 this.getLastRate((rate) => {
                                     const
-                                        side = predictable >= rate ? buySide : sellSide,
+                                        side = predictable >= rate.rate ? buySide : sellSide,
                                         units = randomInteger(50, 100),
-                                        minRate = min(rate, predictable),
-                                        maxRate = max(rate, predictable),
+                                        minRate = min(rate.rate, predictable),
+                                        maxRate = max(rate.rate, predictable),
                                         price = randomFloat(minRate, maxRate);
 
                                     if (side == buySide){
@@ -203,7 +203,7 @@ class FrankBot{
             if (err) throw err;
             let response = JSON.parse(res.body);
             if (response._id){
-                cb(response.rate);
+                cb(response);
             }
         });
     }
@@ -228,7 +228,7 @@ class FrankBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response.units, response.side, response.status);
+            console.log(response.dateOpened, response.units, response.side, response.status);
             cb();
         })
     }

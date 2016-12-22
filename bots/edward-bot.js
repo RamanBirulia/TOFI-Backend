@@ -24,11 +24,27 @@ class EdwardBot{
                     let controlMarket = () => {
                         setTimeout(() => {
                             this.getLastRate((rate) => {
-                                let date = rate.date;
+                                let date = new Date(rate.date);
+                                date.setHours(date.getHours() + 24);
+                                date = new Date(date);
                                 this.getDeals((deals) => {
-                                    console.log(deals.length);
-                                    controlMarket();
-                                }, date);
+                                    if (deals.length) {
+                                        let min = deals.reduce((min, val) => Math.min(val.sellPrice, min), deals[0].sellPrice);
+                                        let max = deals.reduce((max, val) => Math.max(val.sellPrice, max), deals[0].sellPrice);
+                                        let result = deals.reduce((init, val) => {
+                                            init.sum += val.sellPrice * val.units;
+                                            init.weight += val.units;
+                                            return init;
+                                        }, {sum: 0, weight: 0});
+                                        let newRate = parseFloat((result.sum / result.weight).toFixed(4));
+                                        min = parseFloat(min.toFixed(4));
+                                        max = parseFloat(max.toFixed(4));
+                                        console.log(newRate, min, max, date);
+                                        this.postRate(newRate, min, max, date, () => controlMarket());
+                                    } else {
+                                        controlMarket();
+                                    }
+                                }, rate.date);
                             });
                         }, this.delay);
                     };
@@ -185,8 +201,21 @@ class EdwardBot{
         });
     }
 
-    postRate(){
+    postRate(rate, min, max, date, cb){
+        let body = {rate, min, max, date};
 
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/rates',
+            headers: {
+                'x-access-token': this.token
+            },
+            form: body
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+            cb();
+        });
     }
 }
 
