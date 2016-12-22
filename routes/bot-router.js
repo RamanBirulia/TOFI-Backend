@@ -84,4 +84,28 @@ router.get('/', (req, res) => {
     }
 });
 
+router.get('/:id/logs', (req, res) => {
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
+
+    if (user.role == 'admin') {
+        Bot.findById(req.params.id, (err, bot) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                let indicator = bot.botId.match(/\d+/)[0];
+                let name = bot.botId.split(indicator)[0];
+                let filename = name.toLowerCase() + '-bot-' + indicator + '-log.out';
+                fs.readFile(filename, 'utf-8', (logs) => {
+                    Object.assign(result, {logs: logs});
+                    res.status(200).send(result);
+                });
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
+    }
+});
+
 module.exports = router;
