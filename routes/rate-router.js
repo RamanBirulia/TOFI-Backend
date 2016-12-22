@@ -15,11 +15,9 @@ router.get('/', (req, res) => {
     const options = Object.assign({}, defaultOptions, req.body || {});
     const {limit, dateFrom, dateTill} = options;
 
-    let query = {dateFrom, dateTill, $and: []};
+    let query = {$and: []};
     if (dateFrom) query.$and.push({date: {$gte: dateFrom}});
     if (dateTill) query.$and.push({date: {$lte: dateTill}});
-    delete query.dateFrom;
-    delete query.dateTill;
 
     if (query.$and.length > 0){
         Rate.find(query).sort({date:-1}).exec((err, rates) => {
