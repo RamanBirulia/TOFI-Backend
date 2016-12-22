@@ -28,6 +28,8 @@ class FrankBot{
         this.name = name;
         this.surname = surname;
         this.email = this.name.toLowerCase() + '.' + this.surname.toLowerCase() + process.argv[2] + '@bot.org';
+        this.failedBuy = 0;
+        this.failedSell = 0;
     }
 
     onStart(){
@@ -38,17 +40,34 @@ class FrankBot{
                     this.getDelay();
 
                     let makeDeal = () => {
+                        let addFunds = (currency, amount) => {
+                            setTimeout(() => {
+                                this.addFunds(currency, amount, makeDeal);
+                            }, this.delay);
+                        };
+
                         setTimeout(() => {
-                            let range = randomInteger(5, 35);
+                            let range = randomInteger(1, 100);
                             this.getRates(range, (rates) => {
                                 let predictable = FrankBot.calcMovingAverage(rates);
                                 this.getLastRate((rate) => {
+                                    let side = predictable >= rate.rate ? buySide : sellSide;
                                     const
-                                        side = predictable >= rate.rate ? buySide : sellSide,
                                         units = randomInteger(50, 100),
                                         minRate = min(rate.rate, predictable),
                                         maxRate = max(rate.rate, predictable),
-                                        price = randomFloat(minRate, maxRate);
+                                        price = parseFloat(randomFloat(minRate, maxRate).toFixed(4));;
+
+                                    if (this.failedSell + this.failedBuy >= 3) {
+                                        this.failedSell = 0;
+                                        this.failedBuy = 0;
+                                        addFunds('USD', 1000);
+                                        addFunds('EUR', 1000)
+                                    } else if (this.failedSell > 0) {
+                                        side = buySide;
+                                    } else if (this.failedBuy > 0) {
+                                        side = sellSide
+                                    }
 
                                     if (side == buySide){
                                         this.postDeal(side, units, price, makeDeal);
@@ -208,7 +227,7 @@ class FrankBot{
         });
     }
 
-    postDeal(side, units, rate, cb = () => {}){
+    postDeal(side, units, rate, resolve = () => {}, reject = () => {}){
         let body = {};
         body['side'] = side;
         body['units'] = units;
@@ -228,8 +247,21 @@ class FrankBot{
         }, (err, res) => {
             if (err) throw err;
             let response = JSON.parse(res.body);
-            console.log(response.dateOpened, response.units, response.side, response.status);
-            cb();
+            if (response._id) {
+                console.log(response.dateOpened, response.units, response.side, response.status);
+                this.failedBuy = Math.max(0, this.failedBuy - 1);
+                this.failedSell = Math.max(0, this.failedSell - 1);
+                resolve();
+            } else {
+                let currency = side == sellSide ? 'EUR' : 'USD';
+                if (side == sellSide) {
+                    this.failedSell++;
+                } else this.failedBuy++;
+                console.log('NOT ENOUGH', currency);
+                resolve();
+            }
+
+
         })
     }
 
@@ -251,17 +283,19 @@ class FrankBot{
         });
     }
 
-    addFunds(currency, amount){
+    addFunds(currency, amount, cb){
         for (let i = 0; i < this.accounts.length; i++){
             let account = this.accounts[i];
             if (account.currency == currency){
                 request({
-                    url: 'http://localhost:3000/api/accounts/' + account._id,
+                    url: 'http://localhost:3000/api/accounts/my/' + account._id,
                     method: 'PUT',
                     form: {amount: amount},
                     headers: {'x-access-token': this.token}
                 }, (err, res) => {
-
+                    let response = JSON.parse(res.body);
+                    console.log('ADD', currency, amount, 'NOW:', response.amount);
+                    cb();
                 });
             }
         }
