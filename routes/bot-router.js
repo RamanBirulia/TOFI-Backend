@@ -3,6 +3,7 @@
  */
 let express = require('express');
 let router = express.Router();
+let fs = require('fs');
 
 let spawn = require('child_process').spawn;
 
@@ -56,6 +57,7 @@ router.post('/create', (req, res) => {
                     fs.openSync('logs/frank-bot-' + indicator + '-log.out', 'w')
                 ]
             });
+            res.status(200).send(result);
         });
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
