@@ -69,11 +69,11 @@ router.get('/', (req, res) => {
 
     const user = Object.assign({}, {}, req.decoded._doc);
     const options = Object.assign({}, defaultOptions, req.body || {});
-    const { limit, page } = options;
+    const { limit } = options;
     const query = {};
 
     if (user.role == 'admin') {
-        User.find(query).skip((+page - 1) * +limit).limit(+limit).exec((err, users) => {
+        User.find(query).limit(+limit).exec((err, users) => {
             if (err) {
                 res.status(502).send(err);
             } else {
