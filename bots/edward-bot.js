@@ -39,7 +39,7 @@ class EdwardBot{
                                         let newRate = parseFloat((result.sum / result.weight).toFixed(4));
                                         min = parseFloat(min.toFixed(4));
                                         max = parseFloat(max.toFixed(4));
-                                        this.postLog(date + ' ' + newRate + ' ' + min + ' ' + max + ' ');
+                                        this.postLog(newRate + ' ' + min + ' ' + max + ' ');
                                         this.postRate(newRate, min, max, date, () => controlMarket());
                                     } else {
                                         controlMarket();

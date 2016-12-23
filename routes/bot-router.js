@@ -9,6 +9,7 @@ let spawn = require('child_process').spawn;
 
 let Bot = require('../models/bot');
 let Log = require('../models/log');
+let Rate = require('../models/rate');
 
 const defaultResult = {success: true, errors: {}};
 const defaultOptions = {limit: 50, page: 1};
@@ -51,13 +52,7 @@ router.post('/create', (req, res) => {
         Bot.find({botId: re}, (err, bots) => {
             bots = bots.map(bot => bot.botId.split(re)[1]);
             while (bots.indexOf(indicator) != -1) indicator++;
-            spawn('node', ['bots/frank-bot.js', indicator], {
-                stdio: [
-                    0,
-                    fs.openSync('logs/frank-bot-' + indicator + '-log.out', 'w'),
-                    fs.openSync('logs/frank-bot-' + indicator + '-log.out', 'w')
-                ]
-            });
+            spawn('node', ['bots/frank-bot.js', indicator]);
             res.status(200).send(result);
         });
     } else {
@@ -116,12 +111,29 @@ router.post('/logs', (req, res) => {
 
     if (user) {
         let log = new Log();
-        Object.assign(log, {date: new Date(), botId: user.login, log: req.body.log});
-        log.save((err) => {
+        Rate.findOne().sort({date:-1}).exec((err, rate) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                res.status(200).send(log);
+                let getDate = (date) => {
+                    let newDate = new Date();
+                    newDate.setDate(date.getDate());
+                    newDate.setMonth(date.getMonth());
+                    newDate.setFullYear(date.getFullYear());
+                    newDate.setHours(newDate.getHours() + 3);
+                    return newDate;
+                };
+
+                let date = getDate(rate.date);
+
+                Object.assign(log, {date: date, botId: user.login, log: req.body.log});
+                log.save((err) => {
+                    if (err) {
+                        res.status(502).send(err);
+                    } else {
+                        res.status(200).send(log);
+                    }
+                });
             }
         });
     } else {
