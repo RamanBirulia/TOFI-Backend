@@ -8,9 +8,10 @@ let fs = require('fs');
 let spawn = require('child_process').spawn;
 
 let Bot = require('../models/bot');
+let Log = require('../models/log');
 
 const defaultResult = {success: true, errors: {}};
-const defaultOptions = {limit: 15, page: 1};
+const defaultOptions = {limit: 50, page: 1};
 
 router.post('/', (req, res) => {
     Bot.findOne({botId: req.body.botId}, (err, bot) => {
@@ -84,26 +85,47 @@ router.get('/', (req, res) => {
     }
 });
 
-router.get('/:id/logs', (req, res) => {
-    const user = req.decoded._doc;
+router.get('/:login/logs', (req, res) => {
+    const
+        user = req.decoded._doc,
+        options = Object.assign({}, {}, defaultOptions),
+        {limit} = options;
+
     let result = Object.assign({}, {}, defaultResult);
+    console.log(req.params.login);
+    console.log(user);
 
     if (user.role == 'admin') {
-        Bot.findById(req.params.id, (err, bot) => {
+        Log.find({botId: req.params.login}).sort({date: -1}).limit(limit).exec((err, logs) => {
             if (err) {
                 res.status(502).send(err);
             } else {
-                let indicator = bot.botId.match(/\d+/)[0];
-                let name = bot.botId.split(indicator)[0];
-                let filename = name.toLowerCase() + '-bot-' + indicator + '-log.out';
-                fs.readFile(filename, 'utf-8', (logs) => {
-                    Object.assign(result, {logs: logs});
-                    res.status(200).send(result);
-                });
+                Object.assign(result, {results: logs, count: logs.length});
+                res.status(200).send(result);
             }
         });
     } else {
         Object.assign(result, {success: false, errors: { user: 'Permission denied.'} });
+        res.status(401).send(result);
+    }
+});
+
+router.post('/logs', (req, res) => {
+    const user = req.decoded._doc;
+    let result = Object.assign({}, {}, defaultResult);
+
+    if (user) {
+        let log = new Log();
+        Object.assign(log, {date: new Date(), botId: user.login, log: req.body.log});
+        log.save((err) => {
+            if (err) {
+                res.status(502).send(err);
+            } else {
+                res.status(200).send(log);
+            }
+        });
+    } else {
+        Object.assign(result, {success: false, errors: {user: 'Permission denied.'}});
         res.status(401).send(result);
     }
 });

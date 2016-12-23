@@ -39,7 +39,7 @@ class EdwardBot{
                                         let newRate = parseFloat((result.sum / result.weight).toFixed(4));
                                         min = parseFloat(min.toFixed(4));
                                         max = parseFloat(max.toFixed(4));
-                                        console.log(newRate, min, max, date);
+                                        this.postLog(date + ' ' + newRate + ' ' + min + ' ' + max + ' ');
                                         this.postRate(newRate, min, max, date, () => controlMarket());
                                     } else {
                                         controlMarket();
@@ -217,12 +217,31 @@ class EdwardBot{
             cb();
         });
     }
+
+    postLog(log){
+        let body = {log};
+
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/bots/logs',
+            headers: {
+                'x-access-token': this.token
+            },
+            form: body
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+        });
+    }
 }
+
+
+
+
 
 let edward = new EdwardBot(login, password, name, surname);
 edward.onStart();
 
 process.on('SIGHUP', () => {
-    console.log('Edward got SIGHUP');
     edward.getDelay(() => {});
 });
