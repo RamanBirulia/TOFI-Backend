@@ -5,8 +5,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var BotSchema = new Schema({
-    pid: 'String',
-    botId: 'String'
+    pid: String,
+    botId: String
 });
 
 module.exports = mongoose.model('Bot', BotSchema);

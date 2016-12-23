@@ -47,7 +47,7 @@ class FrankBot{
                         };
 
                         setTimeout(() => {
-                            let range = randomInteger(1, 100);
+                            let range = randomInteger(5, 45);
                             this.getRates(range, (rates) => {
                                 let predictable = FrankBot.calcMovingAverage(rates);
                                 this.getLastRate((rate) => {
@@ -248,7 +248,7 @@ class FrankBot{
             if (err) throw err;
             let response = JSON.parse(res.body);
             if (response._id) {
-                console.log(response.dateOpened, response.units, response.side, response.status);
+                this.postLog(response.dateOpened + ' ' + response.units + ' ' + response.side + ' ' + response.status);
                 this.failedBuy = Math.max(0, this.failedBuy - 1);
                 this.failedSell = Math.max(0, this.failedSell - 1);
                 resolve();
@@ -257,7 +257,7 @@ class FrankBot{
                 if (side == sellSide) {
                     this.failedSell++;
                 } else this.failedBuy++;
-                console.log('NOT ENOUGH', currency);
+                this.postLog('NOT ENOUGH ' + currency);
                 resolve();
             }
 
@@ -294,11 +294,27 @@ class FrankBot{
                     headers: {'x-access-token': this.token}
                 }, (err, res) => {
                     let response = JSON.parse(res.body);
-                    console.log('ADD', currency, amount, 'NOW:', response.amount);
+                    this.postLog('ADD ' + currency + ' ' + amount + ' NOW: ' + response.amount);
                     cb();
                 });
             }
         }
+    }
+
+    postLog(log){
+        let body = {log};
+
+        request({
+            method:'POST',
+            url: 'http://localhost:3000/api/bots/logs',
+            headers: {
+                'x-access-token': this.token
+            },
+            form: body
+        }, (err, res) => {
+            if (err) throw err;
+            let response = JSON.parse(res.body);
+        });
     }
 }
 
