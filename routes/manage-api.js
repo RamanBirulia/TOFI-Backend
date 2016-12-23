@@ -14,6 +14,7 @@ let Deal = require('../models/deal');
 let Account = require('../models/account');
 let Variable = require('../models/variable');
 let Bot = require('../models/bot');
+let Log = require('../models/log');
 
 router.get('/', (req, res) => {
     res.json({message: 'Welcome to the coolest managing API on earth.'});
@@ -176,12 +177,18 @@ router.get('/setup-instruments', (req, res) => {
 });
 
 router.get('/setup-deals', (req, res) => {
-    Deal.remove({}, (err) => {
+    Log.remove({}, (err) => {
         if (err) {
             res.status(502).send(err);
         } else {
-            console.log('Deals dropped.');
-            res.status(200).send({success: true});
+            Deal.remove({}, (err) => {
+                if (err) {
+                    res.status(502).send(err);
+                } else {
+                    console.log('Deals dropped.');
+                    res.status(200).send({success: true});
+                }
+            });
         }
     });
 });
