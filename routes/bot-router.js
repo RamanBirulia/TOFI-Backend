@@ -51,7 +51,9 @@ router.post('/create', (req, res) => {
         let indicator = 1;
         Bot.find({botId: re}, (err, bots) => {
             bots = bots.map(bot => bot.botId.split(re)[1]);
-            while (bots.indexOf(indicator) != -1) indicator++;
+            while (bots.indexOf('' + indicator) != -1) {
+                indicator++;
+            }
             spawn('node', ['bots/frank-bot.js', indicator]);
             res.status(200).send(result);
         });
