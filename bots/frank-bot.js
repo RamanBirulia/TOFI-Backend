@@ -248,7 +248,8 @@ class FrankBot{
             if (err) throw err;
             let response = JSON.parse(res.body);
             if (response._id) {
-                this.postLog(response.units + ' ' + response.side + ' ' + response.status);
+                let price = response.side == buySide ? response.buyPrice : response.sellPrice;
+                this.postLog(response.side + ' ' + response.units + ' ' + price + ' ' + response.response.status);
                 this.failedBuy = Math.max(0, this.failedBuy - 1);
                 this.failedSell = Math.max(0, this.failedSell - 1);
                 resolve();
