@@ -7,5 +7,5 @@ let fs = require('fs');
 
 console.log('Spawning trading bots');
 
-spawn('node', ['bots/frank-bot.js', 42]);
-spawn('node', ['bots/edward-bot.js', 73]);
+spawn('node', ['./bots/frank-bot.js', 42]);
+spawn('node', ['./bots/edward-bot.js', 73]);

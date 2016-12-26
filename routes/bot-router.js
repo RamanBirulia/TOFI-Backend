@@ -54,7 +54,7 @@ router.post('/create', (req, res) => {
             while (bots.indexOf('' + indicator) != -1) {
                 indicator++;
             }
-            spawn('node', ['bots/frank-bot.js', indicator]);
+            spawn('node', ['./bots/frank-bot.js', indicator]);
             res.status(200).send(result);
         });
     } else {
