@@ -70,9 +70,9 @@ class FrankBot{
                                     }
 
                                     if (side == buySide){
-                                        this.postDeal(side, units, price, makeDeal);
+                                        this.postDeal(side, units, price, () => makeDeal());
                                     } else if (side == sellSide) {
-                                        this.postDeal(side, units, price, makeDeal);
+                                        this.postDeal(side, units, price, () => makeDeal());
                                     }
                                 });
                             });
@@ -249,7 +249,7 @@ class FrankBot{
             let response = JSON.parse(res.body);
             if (response._id) {
                 let price = response.side == buySide ? response.buyPrice : response.sellPrice;
-                this.postLog(response.side + ' ' + response.units + ' ' + price + ' ' + response.response.status);
+                this.postLog(response.side + ' ' + response.units + ' ' + price + ' ' + response.status);
                 this.failedBuy = Math.max(0, this.failedBuy - 1);
                 this.failedSell = Math.max(0, this.failedSell - 1);
                 resolve();
