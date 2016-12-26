@@ -46,7 +46,7 @@ router.post('/', (req, res) => {
 router.post('/create', (req, res) => {
     const user = req.decoded._doc;
     let result = Object.assign({}, {}, defaultResult);
-    let re = new RegExp(req.body.botName);
+    let re = new RegExp('Frank');
     if (user.role == 'admin'){
         let indicator = 1;
         Bot.find({botId: re}, (err, bots) => {
